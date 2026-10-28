@@ -1,0 +1,19 @@
+{
+  "name": "whatsapp-google-workspace-assistant",
+  "version": "2.5.0",
+  "description": "WhatsApp voice and text assistant for Google Calendar and Contacts",
+  "main": "bot-baileys.js",
+  "scripts": {
+    "start:qr": "node bot-baileys.js",
+    "start:meta": "node server.js"
+  },
+  "dependencies": {
+    "@whiskeysockets/baileys": "^6.7.0",
+    "axios": "^1.7.0",
+    "body-parser": "^1.20.2",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "googleapis": "^140.0.0",
+    "qrcode-terminal": "^0.12.0"
+  }
+}

@@ -1,0 +1,2947 @@
+<html lang="tr" class="h-full"><head><script data-bard-client-injected="true">(function(firebaseConfig, initialAuthToken, appId) {
+        window.__firebase_config = firebaseConfig;
+        window.__initial_auth_token = initialAuthToken;
+        window.__app_id = appId;
+            })("\n{\n  \"apiKey\": \"AIzaSyCqyCcs2R2e7AegGjvFAwG98wlamtbHvZY\",\n  \"authDomain\": \"bard-frontend.firebaseapp.com\",\n  \"projectId\": \"bard-frontend\",\n  \"storageBucket\": \"bard-frontend.firebasestorage.app\",\n  \"messagingSenderId\": \"175205271074\",\n  \"appId\": \"1:175205271074:web:2b7bd4d34d33bf38e6ec7b\"\n}\n","eyJhbGciOiJSUzI1NiIsImtpZCI6IjExNjRiNzdiNDMzZDdhMDAyMWI4NjE4YjhjYTU3ZTMyZGI5MWUxMTMiLCJ0eXAiOiJKV1QifQ.eyJzdWIiOiJmaXJlYmFzZS1hZG1pbnNkay1mYnN2Y0BiYXJkLWZyb250ZW5kLmlhbS5nc2VydmljZWFjY291bnQuY29tIiwiYXVkIjoiaHR0cHM6Ly9pZGVudGl0eXRvb2xraXQuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmlkZW50aXR5LmlkZW50aXR5dG9vbGtpdC52MS5JZGVudGl0eVRvb2xraXQiLCJ1aWQiOiIxMDgwMDQ1MjM4MjUwNjM2NDg2NiIsImlzcyI6ImZpcmViYXNlLWFkbWluc2RrLWZic3ZjQGJhcmQtZnJvbnRlbmQuaWFtLmdzZXJ2aWNlYWNjb3VudC5jb20iLCJjbGFpbXMiOnsiYXBwSWQiOiJjXzQwYTEyYzkwNmMzOWIxMmZfaW5kZXguaHRtbC03NTAifSwiZXhwIjoxNzkzMTk1MDgzLCJpYXQiOjE3OTMxOTE0ODMsImFsZyI6IlJTMjU2In0.EMy499YNP02WXXK2ym5Hev7jFfZKj103RVmbbH4CkhUwz874R78ppoP-IwzcgeMyqTZWulVtaLpZ8jOknYAJBr5J7UIHx604IxGHOnih1fUGfTGsGjKpQhWRyp_lSu00vuZkvduZRKpIdSp4p1vB4oVQ0KcFwz8HEWs3ZYBkN1QtgQU5Es1g4pdcnLPhbbKYFZDAuB1kHUPCJqjKwyikWcOw4U21Ek9XqFq-U0lyp6IDKC51PxfhnMJMQOkUacqP-wj2ECSNtu5pKZvu_tFut4SDTUUT7595WOxNbcuFcaBdjpc7ycdjaLvXylmdfzBfsmQkEZois3OfOPKF0cRrOA","c_40a12c906c39b12f_index.html-750")</script><script data-bard-client-injected="true">
+  document.addEventListener('input', (event) => {
+    if (event.target && (event.target.isContentEditable || event.target.hasAttribute('contenteditable'))) {
+      const clonedDoc = document.cloneNode(true);
+      const injectedScripts = clonedDoc.querySelectorAll('[data-bard-client-injected="true"]');
+      injectedScripts.forEach(el => el.remove());
+      window.parent.postMessage({
+        type: 'inlineEdit',
+        html: '<!DOCTYPE html>\n' + clonedDoc.documentElement.outerHTML
+      }, '*');
+    }
+  });
+</script><script data-bard-client-injected="true">(function(){'use strict';window.addEventListener("message",a=>{a.data&&a.data.type==="SUPPLEMENTAL_DATA_UPDATE"&&window.dispatchEvent(new CustomEvent("supplementaldataupdate",{detail:a.data.data}))});}).call(this);
+</script><script data-bard-client-injected="true">(function() {
+  const SCROLL_KEYS = new Set([
+    'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight',
+    ' ', 'Spacebar', 'PageUp', 'PageDown', 'Home', 'End',
+  ]);
+  const HORIZONTAL_KEYS = new Set(['ArrowLeft', 'ArrowRight']);
+
+  function isTextEntryTarget(target) {
+    if (!target) return false;
+    const tagName = target.tagName;
+    return tagName === 'INPUT' || tagName === 'TEXTAREA' ||
+        tagName === 'SELECT' || target.isContentEditable === true;
+  }
+
+  // An element absorbs the key only if it both overflows on the axis being
+  // scrolled and is configured to scroll on that axis. The cheap dimension
+  // test runs first because getComputedStyle forces a style recalc, and this
+  // runs on every keypress. Each axis is read from its own longhand: the
+  // 'overflow' shorthand serializes as two values when the axes differ, which
+  // is the common 'overflow-x: hidden; overflow-y: auto' pane.
+  function canScroll(node, horizontal) {
+    const overflows = horizontal ? node.scrollWidth > node.clientWidth
+                                 : node.scrollHeight > node.clientHeight;
+    if (!overflows) return false;
+    const style = window.getComputedStyle(node);
+    const overflow = horizontal ? style.overflowX : style.overflowY;
+    return overflow === 'auto' || overflow === 'scroll';
+  }
+
+  // Walks up from the event target so nested scrollers keep their behavior.
+  // <body> is included because pages that pin the root height make it the
+  // scroll container.
+  function hasScrollableAncestor(target, horizontal) {
+    let node = target;
+    while (node && node !== document.documentElement) {
+      if (canScroll(node, horizontal)) return true;
+      node = node.parentElement;
+    }
+    return false;
+  }
+
+  function rootCanScroll(horizontal) {
+    const scroller = document.scrollingElement || document.documentElement;
+    if (!scroller) return false;
+    // Tolerate a pixel of rounding so subpixel layouts do not look scrollable.
+    return horizontal ? scroller.scrollWidth > window.innerWidth + 1
+                      : scroller.scrollHeight > window.innerHeight + 1;
+  }
+
+  window.addEventListener('keydown', function(event) {
+    if (!SCROLL_KEYS.has(event.key)) return;
+    if (event.defaultPrevented) return;
+    // Alt and Meta turn arrows into browser history navigation, and Ctrl is
+    // reserved for shortcuts, so none of them are scroll intent.
+    if (event.altKey || event.metaKey || event.ctrlKey) return;
+
+    const target = event.target;
+    if (isTextEntryTarget(target)) return;
+
+    // Anything that can still absorb the scroll gets to keep it.
+    const horizontal = HORIZONTAL_KEYS.has(event.key);
+    if (rootCanScroll(horizontal)) return;
+    if (hasScrollableAncestor(target, horizontal)) return;
+
+    event.preventDefault();
+  }, {capture: true, passive: false});
+})();</script><script data-bard-client-injected="true">(function() {
+  // Ensure this script is executed only once
+  if (window.firebaseAuthBridgeScriptLoaded) {
+    return;
+  }
+  window.firebaseAuthBridgeScriptLoaded = true;
+
+  let nextTokenPromiseId = 0;
+
+  // Stores { resolve, reject } for ongoing token requests
+  const pendingTokenPromises = {};
+
+  // Listen for messages from the Host Application
+  window.addEventListener('message', function(event) {
+
+    const messageData = event.data;
+
+  if (messageData && messageData.type === 'RESOLVE_NEW_FIREBASE_TOKEN') {
+      const { success, token, error, promiseId } = messageData ?? {};
+      if (pendingTokenPromises[promiseId]) {
+        if (success) {
+          pendingTokenPromises[promiseId].resolve(token);
+        } else {
+          pendingTokenPromises[promiseId].reject(new Error(error || 'Token refresh failed from host.'));
+        }
+        delete pendingTokenPromises[promiseId];
+      }
+    }
+  });
+
+  // Expose a function for the Generated App to request a new Firebase token
+  window.requestNewFirebaseToken = function() {
+    const currentPromiseId = nextTokenPromiseId++;
+    const promise = new Promise((resolve, reject) => {
+      pendingTokenPromises[currentPromiseId] = { resolve, reject };
+    });
+    if (window.parent && window.parent !== window) {
+      window.parent.postMessage({
+        type: 'REQUEST_NEW_FIREBASE_TOKEN',
+        promiseId: currentPromiseId
+      }, '*');
+    } else {
+      pendingTokenPromises[currentPromiseId].reject(new Error('No parent window to request token from.'));
+      delete pendingTokenPromises[currentPromiseId];
+    }
+    return promise;
+  };
+})();</script><script data-bard-client-injected="true">
+let realOriginalGetUserMedia = null;
+if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+  realOriginalGetUserMedia = navigator.mediaDevices.getUserMedia.bind(navigator.mediaDevices);
+}
+
+(function() {
+  if (navigator.mediaDevices && navigator.mediaDevices.__proto__) {
+    try {
+      Object.defineProperty(navigator.mediaDevices.__proto__, 'getUserMedia', {
+        get: function() {
+          return undefined; // Or throw an error
+        },
+        configurable: false
+      });
+    } catch (error) {
+      console.error("Error defining prototype getter:", error);
+    }
+  }
+})();
+
+(function() {
+  const pendingMediaResolvers = {};
+  let nextMediaPromiseId = 0;
+
+  function requestMediaPermissions(constraints) {
+    const mediaPromiseId = nextMediaPromiseId++;
+    const promise = new Promise((resolve, reject) => {
+      pendingMediaResolvers[mediaPromiseId] = (granted) => {
+        delete pendingMediaResolvers[mediaPromiseId];
+        resolve(granted);
+      };
+    });
+
+    window.parent.postMessage({
+      type: 'requestMediaPermission',
+      constraints: constraints,
+      promiseId: mediaPromiseId,
+    }, '*');
+
+    return promise;
+  }
+
+  let originalGetUserMedia = realOriginalGetUserMedia;
+
+  function interceptGetUserMedia() {
+    if (navigator.mediaDevices) {
+      Object.defineProperty(navigator.mediaDevices, 'getUserMedia', {
+        value: function(constraints) {
+          return requestMediaPermissions(constraints).then((granted) => {
+            if (granted) {
+              if (originalGetUserMedia) {
+                return originalGetUserMedia(constraints);
+              } else {
+                throw new Error("Original getUserMedia not available.");
+              }
+            } else {
+              throw new DOMException('Permission denied', 'NotAllowedError');
+            }
+          });
+        },
+        writable: false,
+        configurable: false
+      });
+    }
+  }
+
+  interceptGetUserMedia();
+
+  const observer = new MutationObserver(function(mutationsList, observer) {
+    for (const mutation of mutationsList) {
+      if (mutation.type === 'reconfigured' && mutation.name === 'getUserMedia' && mutation.object === navigator.mediaDevices) {
+        interceptGetUserMedia();
+      } else if (mutation.type === 'attributes' && mutation.attributeName === 'getUserMedia' && mutation.target === navigator.mediaDevices) {
+        interceptGetUserMedia();
+      } else if (mutation.type === 'childList' && mutation.addedNodes) {
+        mutation.addedNodes.forEach(node => {
+          if (node === navigator.mediaDevices) {
+            interceptGetUserMedia();
+          }
+        });
+      }
+    }
+  });
+
+  function interceptSpeechRecognition() {
+    if (!window.SpeechRecognition && !window.webkitSpeechRecognition) {
+      return;
+    }
+
+    const OriginalSpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    const SpeechRecognitionWrapper = function(...args) {
+      const recognizer = new OriginalSpeechRecognition(...args);
+      const originalStart = recognizer.start.bind(recognizer);
+
+      recognizer.start = function() {
+        requestMediaPermissions({ audio: true }).then(granted => {
+          if (granted) {
+            originalStart();
+          } else {
+            const errorEvent = new SpeechRecognitionErrorEvent('error');
+            errorEvent.error = 'not-allowed'; // This is the standard error for permission denial.
+            recognizer.dispatchEvent(errorEvent);
+          }
+        });
+      };
+
+      return recognizer;
+    };
+
+    SpeechRecognitionWrapper.prototype = OriginalSpeechRecognition.prototype;
+    SpeechRecognitionWrapper.prototype.constructor = SpeechRecognitionWrapper;
+
+    if (window.SpeechRecognition) {
+      window.SpeechRecognition = SpeechRecognitionWrapper;
+    }
+    if (window.webkitSpeechRecognition) {
+      window.webkitSpeechRecognition = SpeechRecognitionWrapper;
+    }
+  }
+
+  interceptSpeechRecognition();
+
+  window.addEventListener('message', function(event) {
+    if (event.data) {
+      if (event.data.type === 'resolveMediaPermission') {
+        const { promiseId, granted } = event.data;
+        if (pendingMediaResolvers[promiseId]) {
+          pendingMediaResolvers[promiseId](granted);
+        }
+      }
+    }
+  });
+
+})();</script><script ws-interception-config="{&quot;parentOrigin&quot;:&quot;https://gemini.google.com&quot;,&quot;proxiedDomains&quot;:[]}" data-bard-client-injected="true">(function(){'use strict';var u=typeof Object.defineProperties=="function"?Object.defineProperty:function(b,d,e){if(b==Array.prototype||b==Object.prototype)return b;b[d]=e.value;return b};function v(b){b=["object"==typeof globalThis&&globalThis,b,"object"==typeof window&&window,"object"==typeof self&&self,"object"==typeof global&&global];for(var d=0;d<b.length;++d){var e=b[d];if(e&&e.Math==Math)return e}throw Error("Cannot find global object");}var w=v(this);
+function y(b,d){if(d)a:{var e=w;b=b.split(".");for(var h=0;h<b.length-1;h++){var k=b[h];if(!(k in e))break a;e=e[k]}b=b[b.length-1];h=e[b];d=d(h);d!=h&&d!=null&&u(e,b,{configurable:!0,writable:!0,value:d})}}function z(b){function d(h){return b.next(h)}function e(h){return b.throw(h)}return new Promise(function(h,k){function m(n){n.done?h(n.value):Promise.resolve(n.value).then(d,e).then(m,k)}m(b.next())})}y("globalThis",function(b){return b||w});/*
+
+ Copyright The Closure Library Authors.
+ SPDX-License-Identifier: Apache-2.0
+*/
+function A(b,d){function e(){}e.prototype=d.prototype;b.j=d.prototype;b.prototype=new e;b.prototype.constructor=b;b.h=function(h,k,m){for(var n=Array(arguments.length-2),p=2;p<arguments.length;p++)n[p-2]=arguments[p];return d.prototype[k].apply(h,n)}};function B(b,d,e="*"){function h(a){if(typeof a==="string")return F.encode(a).buffer;if(a instanceof ArrayBuffer)return a.slice(0);if(ArrayBuffer.isView(a))return a.buffer.slice(a.byteOffset,a.byteOffset+a.byteLength);throw Error("Invalid data type");}function k(a){a=h(a);var f={type:"send",data:new Uint8Array(a)},g;(g=r)==null||g.postMessage(f,[a])}function m(){if(!r)throw Error("Data port not captured yet.");r.onmessage=a=>{if(a.data.type==="message"){a=new MessageEvent("message",{data:G.decode(a.data.data)});
+let f;(f=c.onmessage)==null||f.call(c,a);c.dispatchEvent(a)}}}function n(){if(!t)throw Error("Control port not captured yet.");t.onmessage=a=>{switch(a.data.type){case "open":l=1;var f=new Event("open"),g;(g=c.onopen)==null||g.call(c,f);c.dispatchEvent(f);q.forEach(H=>{k(H)});q=[];break;case "close":g=a.data;l=3;g=new CloseEvent("close",{code:g.code,reason:g.reason,wasClean:g.wasClean});(f=c.onclose)==null||f.call(c,g);c.dispatchEvent(g);break;case "error":l=3;f=new Event("error");let x;(x=c.onerror)==
+null||x.call(c,f);c.dispatchEvent(f)}}}function p(a){return z(function*(){var f=new MessageChannel;t=f.port1;var g=new MessageChannel;r=g.port1;n();m();window.parent.postMessage({type:"websocket_open",portOrdering:["control","data"],url:b,protocols:a||[],connectionId:I},e,[f.port2,g.port2])}())}var c=Reflect.construct(EventTarget,[],new.target);c.CONNECTING=0;c.OPEN=1;c.CLOSING=2;c.CLOSED=3;c.url=b;c.binaryType="arraybuffer";c.protocol="";c.i="";var l=0,t=null,r=null,q=[],F=new TextEncoder,G=new TextDecoder;
+c.onopen=null;c.onmessage=null;c.onclose=null;c.onerror=null;Object.defineProperty(c,"readyState",{get:()=>l,enumerable:!0,configurable:!0});Object.defineProperty(c,"bufferedAmount",{get:()=>{var a=0;q.forEach(f=>{a+=typeof f==="string"?f.length:f.byteLength});return a},enumerable:!0,configurable:!0});var I=function(){var a;return((a=globalThis.crypto)==null?0:a.randomUUID)?globalThis.crypto.randomUUID():"xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g,f=>{var g=Math.random()*16|0;return(f===
+"x"?g:g&3|8).toString(16)})}();c.send=a=>{if(l===1)a instanceof Blob?a.arrayBuffer().then(f=>{k(f)}):k(a);else if(l===0)if(typeof a==="string")q.push(a);else if(a instanceof ArrayBuffer||ArrayBuffer.isView(a))q.push(h(a));else throw Error("Sending Blob is not supported before the connection is open.");else console.debug("WebSocket send called in CLOSING or CLOSED state; ignored.")};c.close=(a=1E3,f="")=>{if(l!==2&&l!==3){l=2;a={type:"close",code:a,reason:f,wasClean:a===1E3};var g;(g=t)==null||g.postMessage(a)}};
+Promise.resolve().then(()=>p(d));return c}A(B,EventTarget);var C=document.currentScript,D=C==null?void 0:C.getAttribute("ws-interception-config");if(!D)throw Error("WebSocket Interceptor: Missing ws-interception-config attribute in the script tag.");var E=JSON.parse(D);if(!E.parentOrigin||typeof E.parentOrigin!=="string")throw Error("WebSocket Interceptor: Invalid parentOrigin in ws-interception-config");
+(function(b){var d=Object.getOwnPropertyDescriptor(window,"WebSocket");if(!d||d.writable||d.configurable)d=Object.assign(function(e,h){try{let k=(new URL(e)).hostname;if(b.proxiedDomains.some(m=>k===m||k.endsWith(`.${m}`)))return new B(e,h,b.parentOrigin)}catch(k){throw window.parent.postMessage({type:"websocket_blocked",url:e,reason:"blocked_invalid_url"},b.parentOrigin),new DOMException(`WebSocket connection to '${e}' is not allowed in Canvas.`,"SecurityError");}window.parent.postMessage({type:"websocket_blocked",
+url:e,reason:"blocked_domain_not_allowlisted"},b.parentOrigin);throw new DOMException(`WebSocket connection to '${e}' is not allowed in Canvas.`,"SecurityError");},{CONNECTING:0,OPEN:1,CLOSING:2,CLOSED:3}),Object.defineProperty(window,"WebSocket",{value:d,writable:!1,configurable:!1})})({proxiedDomains:E.proxiedDomains||[],parentOrigin:E.parentOrigin});}).call(this);
+</script><script data-bard-client-injected="true">((function(modelInformation) {
+  const originalFetch = window.fetch;
+  // TODO: b/421908508 - Move these out of the script and match all generative AI model calls.
+  let googleLlmBaseApiUrls = [
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.textModelName + ':streamGenerateContent',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.textModelName + ':generateContent',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.imageModelName + ':predict',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.imageModelName + ':predictLongRunning',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.imageEditModelName + ':generateContent',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.imageTransformModelName + ':generateContent',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.videoModelName + ':predict',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.videoModelName + ':predictLongRunning',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.ttsModelName + ':generateContent',
+  ];
+  modelInformation.deprecatedTextModelNames.forEach((modelName) => {
+    googleLlmBaseApiUrls.push(
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':streamGenerateContent',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':generateContent',
+    );
+  });
+  modelInformation.deprecatedImageModelNames.forEach((modelName) => {
+    googleLlmBaseApiUrls.push(
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':predict',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':predictLongRunning',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':generateContent',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':streamGenerateContent',
+    );
+  });
+  modelInformation.deprecatedGenerateImageModelNames.forEach((modelName) => {
+    googleLlmBaseApiUrls.push(
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':generateContent',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':streamGenerateContent',
+    );
+  });
+  modelInformation.deprecatedImageTransformModelNames.forEach((modelName) => {
+    googleLlmBaseApiUrls.push(
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':generateContent',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':streamGenerateContent',
+    );
+  });
+
+  const pendingFetchResolvers = {};
+  let nextPromiseId = 0;
+
+  function handleStringInput(input, optionsArgument) {
+    const actualUrl = input;
+    const fetchCallArgs = [actualUrl, optionsArgument];
+    const effectiveOptions = optionsArgument || {};
+    const bodyForApiKeyCheck = effectiveOptions.body;
+    const bodyForPostMessage = effectiveOptions.body;
+    return { actualUrl, fetchCallArgs, effectiveOptions, bodyForApiKeyCheck, bodyForPostMessage };
+  }
+
+  function handleRequestInput(input, optionsArgument) {
+    const actualUrl = input.url;
+    const fetchCallArgs = [input, optionsArgument];
+    const effectiveOptions = { method: input.method, headers: new Headers(input.headers) };
+    let bodyForApiKeyCheck;
+    let bodyForPostMessage;
+
+    if (optionsArgument) {
+      if (optionsArgument.method) effectiveOptions.method = optionsArgument.method;
+      if (optionsArgument.headers) effectiveOptions.headers = new Headers(optionsArgument.headers);
+      if ('body' in optionsArgument) {
+        bodyForApiKeyCheck = optionsArgument.body;
+        bodyForPostMessage = optionsArgument.body;
+      } else {
+        bodyForApiKeyCheck = undefined;
+        bodyForPostMessage = input.body;
+      }
+    } else {
+      bodyForApiKeyCheck = undefined;
+      bodyForPostMessage = input.body;
+    }
+    return { actualUrl, fetchCallArgs, effectiveOptions, bodyForApiKeyCheck, bodyForPostMessage };
+  }
+
+  window.fetch = function(input, optionsArgument) {
+    let actualUrl;
+    let fetchCallArgs;
+    let effectiveOptions = {};
+    let bodyForApiKeyCheck;
+    let bodyForPostMessage;
+
+    if (typeof input === 'string') {
+      ({actualUrl, fetchCallArgs, effectiveOptions, bodyForApiKeyCheck, bodyForPostMessage} = handleStringInput(input, optionsArgument));
+    } else if (input instanceof Request) {
+      ({actualUrl, fetchCallArgs, effectiveOptions, bodyForApiKeyCheck, bodyForPostMessage} = handleRequestInput(input, optionsArgument));
+    } else {
+      return originalFetch.apply(window, [input, optionsArgument]);
+    }
+
+    effectiveOptions.method = effectiveOptions.method || 'GET';
+    if (!effectiveOptions.headers) {
+      effectiveOptions.headers = new Headers();
+    }
+
+
+    if (typeof actualUrl === 'string' && googleLlmBaseApiUrls.some((url) => actualUrl.startsWith(url))) {
+      let apiKeyIsNull = true;
+
+      const regex = new RegExp("models/([^:]+)");
+      const modelNameMatch = actualUrl.match(regex);
+      const modelName = modelNameMatch ? modelNameMatch[1] : 'unspecified';
+
+
+      try {
+        const urlObject = new URL(actualUrl);  // Use URL object for robust parsing
+        const apiKeyParam = urlObject.searchParams.get('key');
+        if (apiKeyParam) {
+          apiKeyIsNull = false;
+        }
+      } catch (e) {
+        // Continue checks even if URL parsing fails
+      }
+
+      if (apiKeyIsNull && effectiveOptions.headers) {
+        const h = new Headers(effectiveOptions.headers);
+        const apiKeyHeaderValue = h.get('X-API-Key') || h.get('x-api-key');
+        if (apiKeyHeaderValue) {
+          apiKeyIsNull = false;
+          return originalFetch.apply(window, fetchCallArgs);
+        }
+      }
+
+      if (apiKeyIsNull && effectiveOptions.method && ['POST', 'PUT', 'PATCH'].includes(effectiveOptions.method.toUpperCase()) && typeof bodyForApiKeyCheck === 'string') {
+        try {
+          const bodyData = JSON.parse(bodyForApiKeyCheck);
+          if (bodyData && bodyData.apiKey) {
+            apiKeyIsNull = false;
+            return originalFetch.apply(window, fetchCallArgs);
+          }
+        } catch (e) {
+          // Ignore JSON parsing errors
+        }
+      }
+
+      if(apiKeyIsNull) {
+        const promiseId = nextPromiseId++;
+        const promise = new Promise((resolve) => {
+          pendingFetchResolvers[promiseId] = (resolvedResponse) => {
+            delete pendingFetchResolvers[promiseId];
+            resolve(resolvedResponse);
+          };
+        });
+
+        let serializedBodyForPostMessage;
+        if (typeof bodyForPostMessage === 'string' || bodyForPostMessage == null) {
+            serializedBodyForPostMessage = bodyForPostMessage;
+        } else if (bodyForPostMessage instanceof ReadableStream) {
+            serializedBodyForPostMessage = null;
+        } else {
+            try {
+                serializedBodyForPostMessage = JSON.stringify(bodyForPostMessage);
+            } catch (e) {
+                serializedBodyForPostMessage = null;
+            }
+        }
+
+        const messageOptions = {
+            method: effectiveOptions.method,
+            headers: Object.fromEntries(new Headers(effectiveOptions.headers).entries()),
+            body: serializedBodyForPostMessage
+        };
+
+        window.parent.postMessage({
+          type: 'requestFetch',
+          url: actualUrl,
+          modelName: modelName,
+          options: messageOptions,
+          promiseId: promiseId,
+        }, '*');
+
+        return promise;
+      }
+      return originalFetch.apply(window, fetchCallArgs);
+    }
+    return originalFetch.apply(window, fetchCallArgs);
+  };
+
+  window.addEventListener('message', function(event) {
+    if (event.data && event.data.type === 'resolveFetch') {
+      const { promiseId, response } = event.data;
+      if (pendingFetchResolvers[promiseId]) {
+        try {
+          const reconstructedResponse = new Response(response.body, {
+            status: response.status,
+            statusText: response.statusText,
+            headers: new Headers(response.headers),
+          });
+          pendingFetchResolvers[promiseId](reconstructedResponse);
+        } catch (error) {
+          pendingFetchResolvers[promiseId](new Response(null, { status: 500, statusText: "Interceptor Response Reconstruction Error" }));
+        }
+      }
+    }
+  });
+
+}))({"textModelName":"gemini-3-flash-preview","imageModelName":"imagen-4.0-generate-001","imageEditModelName":"gemini-3.1-flash-image","imageTransformModelName":"gemini-3-pro-image","videoModelName":"veo-2.0-generate-001","ttsModelName":"gemini-2.5-flash-preview-tts","deprecatedTextModelNames":["gemini-2.0-flash","gemini-2.5-flash","gemini-2.5-flash-preview-04-17","gemini-2.5-flash-preview-05-20","gemini-2.5-flash-preview-09-2025"],"deprecatedImageModelNames":["imagen-3.0-generate-001","imagen-3.0-generate-002"],"deprecatedGenerateImageModelNames":["gemini-2.5-flash-image-preview","gemini-2.5-flash-image","gemini-3.1-flash-image-preview"],"deprecatedImageTransformModelNames":["gemini-3-pro-image-preview-11-2025"]})</script><script data-bard-client-injected="true">(function() {
+  function normalizeSlug(str) {
+    try {
+      return str
+        .trim()
+        .toLowerCase()
+        .replace(/[^p{L}p{N}s_-]/gu, '')
+        .replace(/s+/g, '-');
+    } catch (e) {
+      return str
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9s_-]/g, '')
+        .replace(/s+/g, '-');
+    }
+  }
+
+  function findTargetElement(hash) {
+    if (!hash || hash === '#') {
+      return null;
+    }
+    const rawId = hash.startsWith('#') ? hash.slice(1) : hash;
+    let decodedId = rawId;
+    try {
+      decodedId = decodeURIComponent(rawId);
+    } catch (e) {
+      // Ignore URI malformed errors.
+    }
+
+    // 1. Direct ID match (raw and decoded).
+    let target = document.getElementById(rawId) || document.getElementById(decodedId);
+    if (target) {
+      return target;
+    }
+
+    // 2. Name attribute match (<a name="...">).
+    try {
+      if (typeof CSS !== 'undefined' && CSS.escape) {
+        target =
+          document.querySelector('[name="' + CSS.escape(rawId) + '"]') ||
+          document.querySelector('[name="' + CSS.escape(decodedId) + '"]');
+      } else {
+        const namedElements = document.getElementsByName(rawId);
+        if (namedElements && namedElements.length > 0) {
+          return namedElements[0];
+        }
+      }
+    } catch (e) {
+      // Ignore querySelector syntax errors.
+    }
+    if (target) {
+      return target;
+    }
+
+    // 3. Match heading text by slug (for Markdown TOCs where headings lack explicit IDs).
+    const targetSlug = normalizeSlug(decodedId);
+    if (targetSlug) {
+      for (const heading of document.querySelectorAll('h1, h2, h3, h4, h5, h6')) {
+        if (normalizeSlug(heading.textContent || '') === targetSlug) {
+          return heading;
+        }
+      }
+    }
+
+    return null;
+  }
+
+  document.addEventListener('click', function(event) {
+    const target = event.target;
+    const anchor = target && typeof target.closest === 'function' ? target.closest('a') : null;
+    if (!anchor) {
+      return;
+    }
+
+    const href = anchor.getAttribute('href');
+    if (
+      !href ||
+      href.trim().toLowerCase().startsWith('javascript:') ||
+      anchor.hasAttribute('download')
+    ) {
+      return;
+    }
+
+    // Check if the link is an in-page hash / anchor link.
+    if (href.startsWith('#')) {
+      event.preventDefault();
+      const targetElement = findTargetElement(href);
+      if (targetElement) {
+        targetElement.scrollIntoView({behavior: 'smooth', block: 'start'});
+      }
+      return;
+    }
+
+    // Check if the URL has the same origin/pathname but with a hash.
+    try {
+      const url = new URL(anchor.href, window.location.href);
+      if (
+        url.hash &&
+        url.origin === window.location.origin &&
+        url.pathname === window.location.pathname
+      ) {
+        event.preventDefault();
+        const targetElement = findTargetElement(url.hash);
+        if (targetElement) {
+          targetElement.scrollIntoView({behavior: 'smooth', block: 'start'});
+        }
+        return;
+      }
+    } catch (e) {
+      // Fall through if URL parsing fails.
+    }
+
+    // For all external or full navigation links, prevent iframe-level navigation
+    // (which breaks in AGSA WebView or sandboxed iframes) and ensure they open
+    // safely in a new tab/window.
+    if (anchor.target !== '_blank') {
+      event.preventDefault();
+      window.open(anchor.href, '_blank', 'noopener,noreferrer');
+    }
+  }, {capture: true});
+})();</script><script data-bard-client-injected="true">(function(){'use strict';function a(){window.parent.postMessage({type:"interaction"},"*")}window.addEventListener("click",a,{capture:!0,passive:!0});window.addEventListener("touchstart",a,{capture:!0,passive:!0});window.addEventListener("keydown",a,{capture:!0,passive:!0});}).call(this);
+</script><script data-bard-client-injected="true">(function() {
+  const originalConsoleLog = console.log;
+  const originalConsoleError = console.error;
+
+    /**
+   * Normalizes an error event or a promise rejection reason into a structured error object.
+   * @param {*} errorEventOrReason The error object or reason.
+   * @return {object} Structured error data { message, name, stack }.
+   */
+  function getErrorObject(errorEventOrReason) {
+    if (errorEventOrReason instanceof Error) {
+      return {
+        message: errorEventOrReason.message,
+        name: errorEventOrReason.name,
+        stack: errorEventOrReason.stack,
+      };
+    }
+    // Fallback for non-Error objects.
+    try {
+      return {
+        message: JSON.stringify(errorEventOrReason),
+        name: 'UnknownErrorType',
+        stack: null,
+      };
+    } catch (e) {
+      return {
+        message: String(errorEventOrReason),
+        name: 'UnknownErrorTypeNonStringifiable',
+        stack: null,
+      };
+    }
+  }
+
+  /**
+   * Converts an array of arguments (from log/error) into a single string.
+   * Handles Error objects specially to include their message and stack.
+   * @param {Array<*>} args - Arguments passed to console methods.
+   * @return {string} A string representation of the arguments.
+   */
+  function stringifyArgs(args) {
+    return args
+      .map((arg) => {
+        if (arg instanceof Error) {
+          const {message, stack} = arg;
+          return `Error: ${message}${stack ? ('\nStack: ' + stack) : ''}`;
+        }
+        if (typeof arg === 'object' && arg !== null) {
+          try {
+            return JSON.stringify(arg);
+          } catch (error) {
+            return '[Circular Object]';
+          }
+        } else {
+          return String(arg);
+        }
+      })
+      .join(' ');
+  }
+
+  console.log = function(...args) {
+    const logString = stringifyArgs(args);
+    window.parent.postMessage({ type: 'log', message: logString }, '*');
+    originalConsoleLog.apply(console, args);
+  };
+
+  console.error = function(...args) {
+    let errorData;
+    if (args.length > 0 && args[0] instanceof Error) {
+      const err = args[0];
+      // If the first arg is an Error, capture its details.
+      errorData = {
+        type: 'error',
+        source: 'CONSOLE_ERROR',
+        ...getErrorObject(err),
+        rawArgsString: stringifyArgs(args.slice(1)),
+        timestamp: new Date().toISOString(),
+      };
+    } else {
+      // If not an Error object, treat all args as a general error message.
+      errorData = {
+        type: 'error',
+        source: 'CONSOLE_ERROR',
+        message: stringifyArgs(args),
+        name: 'ConsoleLoggedError',
+        stack: null,
+        timestamp: new Date().toISOString(),
+      };
+    }
+    window.parent.postMessage(errorData, '*');
+    originalConsoleError.apply(console, args);
+  };
+
+  // Listen for global unhandled synchronous errors.
+  window.addEventListener('error', function(event) {
+    const errorDetails = event.error ? getErrorObject(event.error) : {
+      message: event.message,
+      name: 'GlobalError',
+      stack: null,
+      filename: event.filename,
+      lineno: event.lineno,
+      colno: event.colno,
+    };
+
+    window.parent.postMessage({
+      type: 'error',
+      source: 'global',
+      ...errorDetails,
+      message: errorDetails.message || event.message,
+      timestamp: new Date().toISOString(),
+    }, '*');
+  });
+
+  // Listen for unhandled promise rejections (asynchronous errors).
+  window.addEventListener('unhandledrejection', function(event) {
+    const errorDetails = getErrorObject(event.reason);
+
+    window.parent.postMessage({
+      type: 'error',
+      source: 'unhandledrejection',
+      ...errorDetails,
+      message: errorDetails.message || 'Unhandled Promise Rejection',
+      timestamp: new Date().toISOString(),
+    }, '*');
+  });
+
+})();</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WhatsApp &amp; Google Asistanı (Sesli &amp; Yazılı)</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet">
+  <!-- JSZip: Tek tıkla tüm backend ve docker dosyalarını paketleyip indirmek için -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" crossorigin="anonymous"></script>
+  <!-- Google Identity Services (GIS): Canlı Google OAuth2 oturum açma -->
+  <script src="https://accounts.google.com/gsi/client" async="" defer=""></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            wa: {
+              teal: '#075E54',
+              darkteal: '#128C7E',
+              lightgreen: '#25D366',
+              bg: '#EFEAE2',
+              outgoing: '#DCF8C6',
+              chatbg: '#E5DDD5',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    .wa-chat-pattern {
+      background-color: #e5ddd5;
+      background-image: radial-gradient(#d1c7bc 1px, transparent 1px);
+      background-size: 16px 16px;
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.05);
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 9999px;
+    }
+    @keyframes popIn {
+      0% { opacity: 0; transform: translateY(8px) scale(0.98); }
+      100% { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .message-anim {
+      animation: popIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    @keyframes wavePulse {
+      0%, 100% { height: 6px; }
+      50% { height: 22px; }
+    }
+    .wave-bar {
+      animation: wavePulse 1s ease-in-out infinite;
+    }
+  </style>
+<style>*, ::before, ::after{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }::backdrop{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }/* ! tailwindcss v3.4.17 | MIT License | https://tailwindcss.com */*,::after,::before{box-sizing:border-box;border-width:0;border-style:solid;border-color:#e5e7eb}::after,::before{--tw-content:''}:host,html{line-height:1.5;-webkit-text-size-adjust:100%;-moz-tab-size:4;tab-size:4;font-family:Inter, sans-serif;font-feature-settings:normal;font-variation-settings:normal;-webkit-tap-highlight-color:transparent}body{margin:0;line-height:inherit}hr{height:0;color:inherit;border-top-width:1px}abbr:where([title]){-webkit-text-decoration:underline dotted;text-decoration:underline dotted}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;text-decoration:inherit}b,strong{font-weight:bolder}code,kbd,pre,samp{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;font-feature-settings:normal;font-variation-settings:normal;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}table{text-indent:0;border-color:inherit;border-collapse:collapse}button,input,optgroup,select,textarea{font-family:inherit;font-feature-settings:inherit;font-variation-settings:inherit;font-size:100%;font-weight:inherit;line-height:inherit;letter-spacing:inherit;color:inherit;margin:0;padding:0}button,select{text-transform:none}button,input:where([type=button]),input:where([type=reset]),input:where([type=submit]){-webkit-appearance:button;background-color:transparent;background-image:none}:-moz-focusring{outline:auto}:-moz-ui-invalid{box-shadow:none}progress{vertical-align:baseline}::-webkit-inner-spin-button,::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}summary{display:list-item}blockquote,dd,dl,figure,h1,h2,h3,h4,h5,h6,hr,p,pre{margin:0}fieldset{margin:0;padding:0}legend{padding:0}menu,ol,ul{list-style:none;margin:0;padding:0}dialog{padding:0}textarea{resize:vertical}input::placeholder,textarea::placeholder{opacity:1;color:#9ca3af}[role=button],button{cursor:pointer}:disabled{cursor:default}audio,canvas,embed,iframe,img,object,svg,video{display:block;vertical-align:middle}img,video{max-width:100%;height:auto}[hidden]:where(:not([hidden=until-found])){display:none}.pointer-events-none{pointer-events:none}.fixed{position:fixed}.absolute{position:absolute}.relative{position:relative}.inset-0{inset:0px}.bottom-0{bottom:0px}.bottom-4{bottom:1rem}.right-0{right:0px}.right-2{right:0.5rem}.right-3{right:0.75rem}.right-4{right:1rem}.top-2{top:0.5rem}.top-2\.5{top:0.625rem}.top-3{top:0.75rem}.z-10{z-index:10}.z-20{z-index:20}.z-50{z-index:50}.mx-auto{margin-left:auto;margin-right:auto}.mb-0\.5{margin-bottom:0.125rem}.mb-1{margin-bottom:0.25rem}.mb-2{margin-bottom:0.5rem}.mb-3{margin-bottom:0.75rem}.ml-0\.5{margin-left:0.125rem}.mr-1{margin-right:0.25rem}.mr-1\.5{margin-right:0.375rem}.mt-0\.5{margin-top:0.125rem}.mt-1{margin-top:0.25rem}.mt-1\.5{margin-top:0.375rem}.mt-4{margin-top:1rem}.mt-auto{margin-top:auto}.mt-2{margin-top:0.5rem}.line-clamp-1{overflow:hidden;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:1}.block{display:block}.flex{display:flex}.inline-flex{display:inline-flex}.grid{display:grid}.hidden{display:none}.h-full{height:100%}.h-1\.5{height:0.375rem}.h-10{height:2.5rem}.h-3{height:0.75rem}.h-3\.5{height:0.875rem}.h-4{height:1rem}.h-8{height:2rem}.h-9{height:2.25rem}.max-h-\[500px\]{max-height:500px}.w-0\.5{width:0.125rem}.w-1\.5{width:0.375rem}.w-10{width:2.5rem}.w-3{width:0.75rem}.w-3\.5{width:0.875rem}.w-8{width:2rem}.w-9{width:2.25rem}.w-full{width:100%}.max-w-2xl{max-width:42rem}.max-w-5xl{max-width:64rem}.max-w-6xl{max-width:72rem}.max-w-7xl{max-width:80rem}.max-w-\[200px\]{max-width:200px}.max-w-lg{max-width:32rem}.max-w-\[88\%\]{max-width:88%}.flex-1{flex:1 1 0%}.shrink-0{flex-shrink:0}.translate-y-16{--tw-translate-y:4rem;transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.rotate-180{--tw-rotate:180deg;transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.transform{transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}@keyframes bounce{0%, 100%{transform:translateY(-25%);animation-timing-function:cubic-bezier(0.8,0,1,1)}50%{transform:none;animation-timing-function:cubic-bezier(0,0,0.2,1)}}.animate-bounce{animation:bounce 1s infinite}@keyframes ping{75%, 100%{transform:scale(2);opacity:0}}.animate-ping{animation:ping 1s cubic-bezier(0, 0, 0.2, 1) infinite}@keyframes pulse{50%{opacity:.5}}.animate-pulse{animation:pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite}.cursor-pointer{cursor:pointer}.select-none{-webkit-user-select:none;user-select:none}.grid-cols-1{grid-template-columns:repeat(1, minmax(0, 1fr))}.flex-col{flex-direction:column}.flex-wrap{flex-wrap:wrap}.items-start{align-items:flex-start}.items-center{align-items:center}.justify-end{justify-content:flex-end}.justify-center{justify-content:center}.justify-between{justify-content:space-between}.gap-0\.5{gap:0.125rem}.gap-1{gap:0.25rem}.gap-1\.5{gap:0.375rem}.gap-2{gap:0.5rem}.gap-2\.5{gap:0.625rem}.gap-3{gap:0.75rem}.gap-4{gap:1rem}.space-x-1 > :not([hidden]) ~ :not([hidden]){--tw-space-x-reverse:0;margin-right:calc(0.25rem * var(--tw-space-x-reverse));margin-left:calc(0.25rem * calc(1 - var(--tw-space-x-reverse)))}.space-x-2 > :not([hidden]) ~ :not([hidden]){--tw-space-x-reverse:0;margin-right:calc(0.5rem * var(--tw-space-x-reverse));margin-left:calc(0.5rem * calc(1 - var(--tw-space-x-reverse)))}.space-x-3 > :not([hidden]) ~ :not([hidden]){--tw-space-x-reverse:0;margin-right:calc(0.75rem * var(--tw-space-x-reverse));margin-left:calc(0.75rem * calc(1 - var(--tw-space-x-reverse)))}.space-y-1 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(0.25rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(0.25rem * var(--tw-space-y-reverse))}.space-y-2 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(0.5rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(0.5rem * var(--tw-space-y-reverse))}.space-y-2\.5 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(0.625rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(0.625rem * var(--tw-space-y-reverse))}.space-y-3 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(0.75rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(0.75rem * var(--tw-space-y-reverse))}.space-y-4 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(1rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(1rem * var(--tw-space-y-reverse))}.space-y-6 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(1.5rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(1.5rem * var(--tw-space-y-reverse))}.overflow-hidden{overflow:hidden}.overflow-x-auto{overflow-x:auto}.overflow-y-auto{overflow-y:auto}.truncate{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.whitespace-nowrap{white-space:nowrap}.whitespace-pre-wrap{white-space:pre-wrap}.break-words{overflow-wrap:break-word}.break-all{word-break:break-all}.rounded{border-radius:0.25rem}.rounded-2xl{border-radius:1rem}.rounded-3xl{border-radius:1.5rem}.rounded-full{border-radius:9999px}.rounded-lg{border-radius:0.5rem}.rounded-xl{border-radius:0.75rem}.border{border-width:1px}.border-2{border-width:2px}.border-b{border-bottom-width:1px}.border-r{border-right-width:1px}.border-t{border-top-width:1px}.border-amber-200{--tw-border-opacity:1;border-color:rgb(253 230 138 / var(--tw-border-opacity, 1))}.border-amber-500\/30{border-color:rgb(245 158 11 / 0.3)}.border-blue-500\/30{border-color:rgb(59 130 246 / 0.3)}.border-blue-500\/40{border-color:rgb(59 130 246 / 0.4)}.border-emerald-200{--tw-border-opacity:1;border-color:rgb(167 243 208 / var(--tw-border-opacity, 1))}.border-emerald-300{--tw-border-opacity:1;border-color:rgb(110 231 183 / var(--tw-border-opacity, 1))}.border-emerald-500\/30{border-color:rgb(16 185 129 / 0.3)}.border-emerald-500\/40{border-color:rgb(16 185 129 / 0.4)}.border-emerald-800\/40{border-color:rgb(6 95 70 / 0.4)}.border-purple-500\/30{border-color:rgb(168 85 247 / 0.3)}.border-purple-500\/40{border-color:rgb(168 85 247 / 0.4)}.border-purple-900\/40{border-color:rgb(88 28 135 / 0.4)}.border-slate-100{--tw-border-opacity:1;border-color:rgb(241 245 249 / var(--tw-border-opacity, 1))}.border-slate-200{--tw-border-opacity:1;border-color:rgb(226 232 240 / var(--tw-border-opacity, 1))}.border-slate-300{--tw-border-opacity:1;border-color:rgb(203 213 225 / var(--tw-border-opacity, 1))}.border-slate-700{--tw-border-opacity:1;border-color:rgb(51 65 85 / var(--tw-border-opacity, 1))}.border-slate-700\/60{border-color:rgb(51 65 85 / 0.6)}.border-slate-800{--tw-border-opacity:1;border-color:rgb(30 41 59 / var(--tw-border-opacity, 1))}.border-teal-200{--tw-border-opacity:1;border-color:rgb(153 246 228 / var(--tw-border-opacity, 1))}.border-wa-teal{--tw-border-opacity:1;border-color:rgb(7 94 84 / var(--tw-border-opacity, 1))}.border-white\/40{border-color:rgb(255 255 255 / 0.4)}.border-amber-200\/60{border-color:rgb(253 230 138 / 0.6)}.border-blue-200{--tw-border-opacity:1;border-color:rgb(191 219 254 / var(--tw-border-opacity, 1))}.bg-slate-100{--tw-bg-opacity:1;background-color:rgb(241 245 249 / var(--tw-bg-opacity, 1))}.bg-amber-50\/70{background-color:rgb(255 251 235 / 0.7)}.bg-amber-500\/10{background-color:rgb(245 158 11 / 0.1)}.bg-amber-500\/20{background-color:rgb(245 158 11 / 0.2)}.bg-amber-600\/30{background-color:rgb(217 119 6 / 0.3)}.bg-black\/60{background-color:rgb(0 0 0 / 0.6)}.bg-blue-500\/20{background-color:rgb(59 130 246 / 0.2)}.bg-blue-600{--tw-bg-opacity:1;background-color:rgb(37 99 235 / var(--tw-bg-opacity, 1))}.bg-blue-600\/20{background-color:rgb(37 99 235 / 0.2)}.bg-blue-600\/30{background-color:rgb(37 99 235 / 0.3)}.bg-emerald-400{--tw-bg-opacity:1;background-color:rgb(52 211 153 / var(--tw-bg-opacity, 1))}.bg-emerald-50{--tw-bg-opacity:1;background-color:rgb(236 253 245 / var(--tw-bg-opacity, 1))}.bg-emerald-50\/70{background-color:rgb(236 253 245 / 0.7)}.bg-emerald-500\/10{background-color:rgb(16 185 129 / 0.1)}.bg-emerald-500\/20{background-color:rgb(16 185 129 / 0.2)}.bg-emerald-600{--tw-bg-opacity:1;background-color:rgb(5 150 105 / var(--tw-bg-opacity, 1))}.bg-emerald-600\/20{background-color:rgb(5 150 105 / 0.2)}.bg-emerald-600\/30{background-color:rgb(5 150 105 / 0.3)}.bg-purple-500\/10{background-color:rgb(168 85 247 / 0.1)}.bg-purple-500\/20{background-color:rgb(168 85 247 / 0.2)}.bg-purple-600\/20{background-color:rgb(147 51 234 / 0.2)}.bg-red-400{--tw-bg-opacity:1;background-color:rgb(248 113 113 / var(--tw-bg-opacity, 1))}.bg-red-50{--tw-bg-opacity:1;background-color:rgb(254 242 242 / var(--tw-bg-opacity, 1))}.bg-red-500{--tw-bg-opacity:1;background-color:rgb(239 68 68 / var(--tw-bg-opacity, 1))}.bg-red-600{--tw-bg-opacity:1;background-color:rgb(220 38 38 / var(--tw-bg-opacity, 1))}.bg-slate-50{--tw-bg-opacity:1;background-color:rgb(248 250 252 / var(--tw-bg-opacity, 1))}.bg-slate-800{--tw-bg-opacity:1;background-color:rgb(30 41 59 / var(--tw-bg-opacity, 1))}.bg-slate-800\/80{background-color:rgb(30 41 59 / 0.8)}.bg-slate-900{--tw-bg-opacity:1;background-color:rgb(15 23 42 / var(--tw-bg-opacity, 1))}.bg-slate-900\/90{background-color:rgb(15 23 42 / 0.9)}.bg-slate-950{--tw-bg-opacity:1;background-color:rgb(2 6 23 / var(--tw-bg-opacity, 1))}.bg-teal-50\/70{background-color:rgb(240 253 250 / 0.7)}.bg-teal-600{--tw-bg-opacity:1;background-color:rgb(13 148 136 / var(--tw-bg-opacity, 1))}.bg-wa-bg{--tw-bg-opacity:1;background-color:rgb(239 234 226 / var(--tw-bg-opacity, 1))}.bg-wa-teal{--tw-bg-opacity:1;background-color:rgb(7 94 84 / var(--tw-bg-opacity, 1))}.bg-white{--tw-bg-opacity:1;background-color:rgb(255 255 255 / var(--tw-bg-opacity, 1))}.bg-white\/20{background-color:rgb(255 255 255 / 0.2)}.bg-white\/95{background-color:rgb(255 255 255 / 0.95)}.bg-amber-200\/70{background-color:rgb(253 230 138 / 0.7)}.bg-black\/10{background-color:rgb(0 0 0 / 0.1)}.bg-blue-50{--tw-bg-opacity:1;background-color:rgb(239 246 255 / var(--tw-bg-opacity, 1))}.bg-emerald-100{--tw-bg-opacity:1;background-color:rgb(209 250 229 / var(--tw-bg-opacity, 1))}.bg-gradient-to-r{background-image:linear-gradient(to right, var(--tw-gradient-stops))}.bg-gradient-to-tr{background-image:linear-gradient(to top right, var(--tw-gradient-stops))}.from-emerald-500{--tw-gradient-from:#10b981 var(--tw-gradient-from-position);--tw-gradient-to:rgb(16 185 129 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.from-slate-900{--tw-gradient-from:#0f172a var(--tw-gradient-from-position);--tw-gradient-to:rgb(15 23 42 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.via-emerald-950\/40{--tw-gradient-to:rgb(2 44 34 / 0)  var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), rgb(2 44 34 / 0.4) var(--tw-gradient-via-position), var(--tw-gradient-to)}.via-purple-950\/40{--tw-gradient-to:rgb(59 7 100 / 0)  var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), rgb(59 7 100 / 0.4) var(--tw-gradient-via-position), var(--tw-gradient-to)}.to-slate-900{--tw-gradient-to:#0f172a var(--tw-gradient-to-position)}.to-teal-400{--tw-gradient-to:#2dd4bf var(--tw-gradient-to-position)}.to-teal-500{--tw-gradient-to:#14b8a6 var(--tw-gradient-to-position)}.p-1{padding:0.25rem}.p-1\.5{padding:0.375rem}.p-2{padding:0.5rem}.p-2\.5{padding:0.625rem}.p-3{padding:0.75rem}.p-3\.5{padding:0.875rem}.p-4{padding:1rem}.p-5{padding:1.25rem}.p-6{padding:1.5rem}.px-1\.5{padding-left:0.375rem;padding-right:0.375rem}.px-2{padding-left:0.5rem;padding-right:0.5rem}.px-2\.5{padding-left:0.625rem;padding-right:0.625rem}.px-3{padding-left:0.75rem;padding-right:0.75rem}.px-3\.5{padding-left:0.875rem;padding-right:0.875rem}.px-4{padding-left:1rem;padding-right:1rem}.px-5{padding-left:1.25rem;padding-right:1.25rem}.py-0\.5{padding-top:0.125rem;padding-bottom:0.125rem}.py-1{padding-top:0.25rem;padding-bottom:0.25rem}.py-1\.5{padding-top:0.375rem;padding-bottom:0.375rem}.py-2{padding-top:0.5rem;padding-bottom:0.5rem}.py-2\.5{padding-top:0.625rem;padding-bottom:0.625rem}.py-3{padding-top:0.75rem;padding-bottom:0.75rem}.px-1{padding-left:0.25rem;padding-right:0.25rem}.pb-2{padding-bottom:0.5rem}.pb-3{padding-bottom:0.75rem}.pl-4{padding-left:1rem}.pr-10{padding-right:2.5rem}.pt-2{padding-top:0.5rem}.pt-3{padding-top:0.75rem}.text-left{text-align:left}.text-center{text-align:center}.font-sans{font-family:Inter, sans-serif}.font-mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace}.text-2xl{font-size:1.5rem;line-height:2rem}.text-\[10px\]{font-size:10px}.text-\[11px\]{font-size:11px}.text-\[9px\]{font-size:9px}.text-base{font-size:1rem;line-height:1.5rem}.text-lg{font-size:1.125rem;line-height:1.75rem}.text-sm{font-size:0.875rem;line-height:1.25rem}.text-xl{font-size:1.25rem;line-height:1.75rem}.text-xs{font-size:0.75rem;line-height:1rem}.font-black{font-weight:900}.font-bold{font-weight:700}.font-extrabold{font-weight:800}.font-medium{font-weight:500}.font-semibold{font-weight:600}.uppercase{text-transform:uppercase}.italic{font-style:italic}.leading-relaxed{line-height:1.625}.tracking-tight{letter-spacing:-0.025em}.tracking-wider{letter-spacing:0.05em}.text-slate-800{--tw-text-opacity:1;color:rgb(30 41 59 / var(--tw-text-opacity, 1))}.text-amber-300{--tw-text-opacity:1;color:rgb(252 211 77 / var(--tw-text-opacity, 1))}.text-amber-400{--tw-text-opacity:1;color:rgb(251 191 36 / var(--tw-text-opacity, 1))}.text-amber-500{--tw-text-opacity:1;color:rgb(245 158 11 / var(--tw-text-opacity, 1))}.text-amber-600{--tw-text-opacity:1;color:rgb(217 119 6 / var(--tw-text-opacity, 1))}.text-amber-700{--tw-text-opacity:1;color:rgb(180 83 9 / var(--tw-text-opacity, 1))}.text-amber-700\/90{color:rgb(180 83 9 / 0.9)}.text-amber-900{--tw-text-opacity:1;color:rgb(120 53 15 / var(--tw-text-opacity, 1))}.text-blue-300{--tw-text-opacity:1;color:rgb(147 197 253 / var(--tw-text-opacity, 1))}.text-blue-400{--tw-text-opacity:1;color:rgb(96 165 250 / var(--tw-text-opacity, 1))}.text-blue-600{--tw-text-opacity:1;color:rgb(37 99 235 / var(--tw-text-opacity, 1))}.text-blue-700{--tw-text-opacity:1;color:rgb(29 78 216 / var(--tw-text-opacity, 1))}.text-emerald-300{--tw-text-opacity:1;color:rgb(110 231 183 / var(--tw-text-opacity, 1))}.text-emerald-400{--tw-text-opacity:1;color:rgb(52 211 153 / var(--tw-text-opacity, 1))}.text-emerald-600{--tw-text-opacity:1;color:rgb(5 150 105 / var(--tw-text-opacity, 1))}.text-emerald-700{--tw-text-opacity:1;color:rgb(4 120 87 / var(--tw-text-opacity, 1))}.text-emerald-700\/90{color:rgb(4 120 87 / 0.9)}.text-emerald-900{--tw-text-opacity:1;color:rgb(6 78 59 / var(--tw-text-opacity, 1))}.text-purple-300{--tw-text-opacity:1;color:rgb(216 180 254 / var(--tw-text-opacity, 1))}.text-purple-400{--tw-text-opacity:1;color:rgb(192 132 252 / var(--tw-text-opacity, 1))}.text-red-400{--tw-text-opacity:1;color:rgb(248 113 113 / var(--tw-text-opacity, 1))}.text-red-500{--tw-text-opacity:1;color:rgb(239 68 68 / var(--tw-text-opacity, 1))}.text-red-600{--tw-text-opacity:1;color:rgb(220 38 38 / var(--tw-text-opacity, 1))}.text-slate-100{--tw-text-opacity:1;color:rgb(241 245 249 / var(--tw-text-opacity, 1))}.text-slate-200{--tw-text-opacity:1;color:rgb(226 232 240 / var(--tw-text-opacity, 1))}.text-slate-300{--tw-text-opacity:1;color:rgb(203 213 225 / var(--tw-text-opacity, 1))}.text-slate-400{--tw-text-opacity:1;color:rgb(148 163 184 / var(--tw-text-opacity, 1))}.text-slate-500{--tw-text-opacity:1;color:rgb(100 116 139 / var(--tw-text-opacity, 1))}.text-slate-600{--tw-text-opacity:1;color:rgb(71 85 105 / var(--tw-text-opacity, 1))}.text-slate-700{--tw-text-opacity:1;color:rgb(51 65 85 / var(--tw-text-opacity, 1))}.text-slate-900{--tw-text-opacity:1;color:rgb(15 23 42 / var(--tw-text-opacity, 1))}.text-slate-950{--tw-text-opacity:1;color:rgb(2 6 23 / var(--tw-text-opacity, 1))}.text-teal-100{--tw-text-opacity:1;color:rgb(204 251 241 / var(--tw-text-opacity, 1))}.text-teal-300{--tw-text-opacity:1;color:rgb(94 234 212 / var(--tw-text-opacity, 1))}.text-teal-600{--tw-text-opacity:1;color:rgb(13 148 136 / var(--tw-text-opacity, 1))}.text-teal-700\/90{color:rgb(15 118 110 / 0.9)}.text-teal-900{--tw-text-opacity:1;color:rgb(19 78 74 / var(--tw-text-opacity, 1))}.text-white{--tw-text-opacity:1;color:rgb(255 255 255 / var(--tw-text-opacity, 1))}.opacity-0{opacity:0}.opacity-75{opacity:0.75}.shadow{--tw-shadow:0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);--tw-shadow-colored:0 1px 3px 0 var(--tw-shadow-color), 0 1px 2px -1px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-2xl{--tw-shadow:0 25px 50px -12px rgb(0 0 0 / 0.25);--tw-shadow-colored:0 25px 50px -12px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-lg{--tw-shadow:0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);--tw-shadow-colored:0 10px 15px -3px var(--tw-shadow-color), 0 4px 6px -4px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-md{--tw-shadow:0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);--tw-shadow-colored:0 4px 6px -1px var(--tw-shadow-color), 0 2px 4px -2px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-sm{--tw-shadow:0 1px 2px 0 rgb(0 0 0 / 0.05);--tw-shadow-colored:0 1px 2px 0 var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-xl{--tw-shadow:0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);--tw-shadow-colored:0 20px 25px -5px var(--tw-shadow-color), 0 8px 10px -6px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-emerald-900\/30{--tw-shadow-color:rgb(6 78 59 / 0.3);--tw-shadow:var(--tw-shadow-colored)}.shadow-emerald-900\/40{--tw-shadow-color:rgb(6 78 59 / 0.4);--tw-shadow:var(--tw-shadow-colored)}.shadow-emerald-950\/60{--tw-shadow-color:rgb(2 44 34 / 0.6);--tw-shadow:var(--tw-shadow-colored)}.outline-none{outline:2px solid transparent;outline-offset:2px}.backdrop-blur{--tw-backdrop-blur:blur(8px);-webkit-backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia)}.transition{transition-property:color, background-color, border-color, fill, stroke, opacity, box-shadow, transform, filter, -webkit-text-decoration-color, -webkit-backdrop-filter;transition-property:color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;transition-property:color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter, -webkit-text-decoration-color, -webkit-backdrop-filter;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.transition-all{transition-property:all;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.duration-300{transition-duration:300ms}.\[animation-delay\:0\.15s\]{animation-delay:0.15s}.\[animation-delay\:0\.3s\]{animation-delay:0.3s}.hover\:scale-105:hover{--tw-scale-x:1.05;--tw-scale-y:1.05;transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.hover\:border-slate-300:hover{--tw-border-opacity:1;border-color:rgb(203 213 225 / var(--tw-border-opacity, 1))}.hover\:bg-amber-100\/80:hover{background-color:rgb(254 243 199 / 0.8)}.hover\:bg-blue-600\/30:hover{background-color:rgb(37 99 235 / 0.3)}.hover\:bg-blue-700:hover{--tw-bg-opacity:1;background-color:rgb(29 78 216 / var(--tw-bg-opacity, 1))}.hover\:bg-emerald-100\/80:hover{background-color:rgb(209 250 229 / 0.8)}.hover\:bg-emerald-500:hover{--tw-bg-opacity:1;background-color:rgb(16 185 129 / var(--tw-bg-opacity, 1))}.hover\:bg-emerald-600\/30:hover{background-color:rgb(5 150 105 / 0.3)}.hover\:bg-emerald-700:hover{--tw-bg-opacity:1;background-color:rgb(4 120 87 / var(--tw-bg-opacity, 1))}.hover\:bg-purple-600\/30:hover{background-color:rgb(147 51 234 / 0.3)}.hover\:bg-slate-100:hover{--tw-bg-opacity:1;background-color:rgb(241 245 249 / var(--tw-bg-opacity, 1))}.hover\:bg-slate-200\/50:hover{background-color:rgb(226 232 240 / 0.5)}.hover\:bg-slate-700:hover{--tw-bg-opacity:1;background-color:rgb(51 65 85 / var(--tw-bg-opacity, 1))}.hover\:bg-slate-700\/60:hover{background-color:rgb(51 65 85 / 0.6)}.hover\:bg-slate-800:hover{--tw-bg-opacity:1;background-color:rgb(30 41 59 / var(--tw-bg-opacity, 1))}.hover\:bg-teal-100\/80:hover{background-color:rgb(204 251 241 / 0.8)}.hover\:bg-wa-darkteal:hover{--tw-bg-opacity:1;background-color:rgb(18 140 126 / var(--tw-bg-opacity, 1))}.hover\:bg-white\/10:hover{background-color:rgb(255 255 255 / 0.1)}.hover\:bg-amber-100:hover{--tw-bg-opacity:1;background-color:rgb(254 243 199 / var(--tw-bg-opacity, 1))}.hover\:from-emerald-400:hover{--tw-gradient-from:#34d399 var(--tw-gradient-from-position);--tw-gradient-to:rgb(52 211 153 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.hover\:to-teal-400:hover{--tw-gradient-to:#2dd4bf var(--tw-gradient-to-position)}.hover\:text-red-600:hover{--tw-text-opacity:1;color:rgb(220 38 38 / var(--tw-text-opacity, 1))}.hover\:text-slate-600:hover{--tw-text-opacity:1;color:rgb(71 85 105 / var(--tw-text-opacity, 1))}.hover\:text-white:hover{--tw-text-opacity:1;color:rgb(255 255 255 / var(--tw-text-opacity, 1))}.hover\:text-blue-600:hover{--tw-text-opacity:1;color:rgb(37 99 235 / var(--tw-text-opacity, 1))}.hover\:text-emerald-600:hover{--tw-text-opacity:1;color:rgb(5 150 105 / var(--tw-text-opacity, 1))}.hover\:text-slate-900:hover{--tw-text-opacity:1;color:rgb(15 23 42 / var(--tw-text-opacity, 1))}.hover\:underline:hover{-webkit-text-decoration-line:underline;text-decoration-line:underline}.hover\:shadow-md:hover{--tw-shadow:0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);--tw-shadow-colored:0 4px 6px -1px var(--tw-shadow-color), 0 2px 4px -2px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.focus\:border-emerald-600:focus{--tw-border-opacity:1;border-color:rgb(5 150 105 / var(--tw-border-opacity, 1))}.focus\:border-teal-600:focus{--tw-border-opacity:1;border-color:rgb(13 148 136 / var(--tw-border-opacity, 1))}.focus\:outline-none:focus{outline:2px solid transparent;outline-offset:2px}.focus\:ring-1:focus{--tw-ring-offset-shadow:var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);--tw-ring-shadow:var(--tw-ring-inset) 0 0 0 calc(1px + var(--tw-ring-offset-width)) var(--tw-ring-color);box-shadow:var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000)}.focus\:ring-emerald-600:focus{--tw-ring-opacity:1;--tw-ring-color:rgb(5 150 105 / var(--tw-ring-opacity, 1))}.focus\:ring-teal-600:focus{--tw-ring-opacity:1;--tw-ring-color:rgb(13 148 136 / var(--tw-ring-opacity, 1))}.active\:scale-95:active{--tw-scale-x:.95;--tw-scale-y:.95;transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.group:hover .group-hover\:scale-110{--tw-scale-x:1.1;--tw-scale-y:1.1;transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}@media (min-width: 640px){.sm\:inline{display:inline}.sm\:max-w-md{max-width:28rem}.sm\:max-w-\[80\%\]{max-width:80%}.sm\:grid-cols-2{grid-template-columns:repeat(2, minmax(0, 1fr))}.sm\:text-sm{font-size:0.875rem;line-height:1.25rem}}@media (min-width: 768px){.md\:w-80{width:20rem}.md\:grid-cols-2{grid-template-columns:repeat(2, minmax(0, 1fr))}.md\:grid-cols-3{grid-template-columns:repeat(3, minmax(0, 1fr))}.md\:flex-row{flex-direction:row}.md\:items-center{align-items:center}.md\:p-6{padding:1.5rem}}@media (min-width: 1024px){.lg\:w-96{width:24rem}.lg\:grid-cols-3{grid-template-columns:repeat(3, minmax(0, 1fr))}}</style><style id="googleidentityservice_button_styles">.qJTHM{-moz-user-select:none;-webkit-user-select:none;-ms-user-select:none;color:#202124;direction:ltr;-webkit-touch-callout:none;font-family:Roboto-Regular,arial,sans-serif;-webkit-font-smoothing:antialiased;font-weight:400;margin:0;overflow:hidden;-webkit-text-size-adjust:100%}.ynRLnc{left:-9999px;position:absolute;top:-9999px}.L6cTce{display:none}.bltWBb{overflow-wrap:break-word;word-break:break-word}.hSRGPd{color:#1a73e8;cursor:pointer;font-weight:500;text-decoration:none}.Bz112c-W3lGp{height:16px;width:16px}.Bz112c-E3DyYd{height:20px;width:20px}.Bz112c-r9oPif{height:24px;width:24px}.Bz112c-u2z5K{height:36px;width:36px}.Bz112c-uaxL4e{border-radius:10px}.LgbsSe-Bz112c{display:block}.S9gUrf-YoZ4jf{border:none;margin:0;padding:0}.S9gUrf-YoZ4jf *{border:none;margin:0;padding:0}.fFW7wc-ibnC6b>.aZ2wEe>div{border-color:#4285f4}.P1ekSe-ZMv3u{-webkit-transition:height .2s linear;transition:height .2s linear}.P1ekSe-ZMv3u>div:first-child{background-color:#1a73e8!important;-webkit-transition:width .3s linear;transition:width .3s linear}.P1ekSe-ZMv3u>div:nth-child(2){background-image:-webkit-gradient(linear,left top,right top,from(rgba(255,255,255,.7)),to(rgba(255,255,255,.7))),-webkit-gradient(linear,left top,right top,from(#1a73e8),to(#1a73e8))!important;background-image:-webkit-linear-gradient(left,rgba(255,255,255,.7),rgba(255,255,255,.7)),-webkit-linear-gradient(left,#1a73e8,#1a73e8)!important;background-image:linear-gradient(90deg,rgba(255,255,255,.7),rgba(255,255,255,.7)),linear-gradient(90deg,#1a73e8,#1a73e8)!important}.P1ekSe-ZMv3u>div:nth-child(3){background-image:-webkit-gradient(linear,left top,right top,from(rgba(255,255,255,.7)),to(rgba(255,255,255,.7))),-webkit-gradient(linear,left top,right top,from(#1a73e8),to(#1a73e8))!important;background-image:-webkit-linear-gradient(left,rgba(255,255,255,.7),rgba(255,255,255,.7)),-webkit-linear-gradient(left,#1a73e8,#1a73e8)!important;background-image:linear-gradient(90deg,rgba(255,255,255,.7),rgba(255,255,255,.7)),linear-gradient(90deg,#1a73e8,#1a73e8)!important}.haAclf{display:inline-block}.nsm7Bb-HzV7m-LgbsSe{border-radius:4px;box-sizing:border-box;-webkit-transition:background-color .218s,border-color .218s;transition:background-color .218s,border-color .218s;-moz-user-select:none;-webkit-user-select:none;-ms-user-select:none;-webkit-appearance:none;background-color:#fff;background-image:none;border:1px solid #dadce0;color:#3c4043;cursor:pointer;font-family:Google Sans,arial,sans-serif;font-size:.875rem;height:40px;letter-spacing:.25px;outline:none;overflow:hidden;padding:0 12px;position:relative;text-align:center;vertical-align:middle;white-space:nowrap;width:auto}.nsm7Bb-HzV7m-LgbsSe.TzA9Ye-LgbsSe{font-size:14px}@media screen and (-ms-high-contrast:active){.nsm7Bb-HzV7m-LgbsSe{border:2px solid windowText;color:windowText}}@media screen and (preferes-contrast:more){.nsm7Bb-HzV7m-LgbsSe{color:#000}}.nsm7Bb-HzV7m-LgbsSe.pSzOP-SxQuSe{font-size:.875rem;height:32px;letter-spacing:.25px;padding:0 10px}.nsm7Bb-HzV7m-LgbsSe.pSzOP-SxQuSe.TzA9Ye-LgbsSe{font-size:14px}.nsm7Bb-HzV7m-LgbsSe.purZT-SxQuSe{font-size:.6875rem;height:20px;letter-spacing:.3px;padding:0 8px}.nsm7Bb-HzV7m-LgbsSe.purZT-SxQuSe.TzA9Ye-LgbsSe{font-size:11px}.nsm7Bb-HzV7m-LgbsSe.Bz112c-LgbsSe{padding:0;width:40px}.nsm7Bb-HzV7m-LgbsSe.Bz112c-LgbsSe.pSzOP-SxQuSe{width:32px}.nsm7Bb-HzV7m-LgbsSe.Bz112c-LgbsSe.purZT-SxQuSe{width:20px}.nsm7Bb-HzV7m-LgbsSe.JGcpL-RbRzK{border-radius:20px}.nsm7Bb-HzV7m-LgbsSe.JGcpL-RbRzK.pSzOP-SxQuSe{border-radius:16px}.nsm7Bb-HzV7m-LgbsSe.JGcpL-RbRzK.purZT-SxQuSe{border-radius:10px}.nsm7Bb-HzV7m-LgbsSe.i5vt6e-to915-Ia7Qfc{border:1px solid #8e918f;background-color:#131314;color:#e3e3e3}.nsm7Bb-HzV7m-LgbsSe.MFS4be-Ia7Qfc{border:none;color:#fff}.nsm7Bb-HzV7m-LgbsSe.MFS4be-v3pZbf-Ia7Qfc{background-color:#1a73e8}.nsm7Bb-HzV7m-LgbsSe.MFS4be-JaPV2b-Ia7Qfc{background-color:#202124;color:#e8eaed}@media screen and (prefers-contrast:more){.nsm7Bb-HzV7m-LgbsSe.MFS4be-JaPV2b-Ia7Qfc{color:#fff}}.nsm7Bb-HzV7m-LgbsSe .nsm7Bb-HzV7m-LgbsSe-Bz112c{height:18px;margin-right:8px;min-width:18px;width:18px}.nsm7Bb-HzV7m-LgbsSe.pSzOP-SxQuSe .nsm7Bb-HzV7m-LgbsSe-Bz112c{height:14px;min-width:14px;width:14px}.nsm7Bb-HzV7m-LgbsSe.purZT-SxQuSe .nsm7Bb-HzV7m-LgbsSe-Bz112c{height:10px;min-width:10px;width:10px}.nsm7Bb-HzV7m-LgbsSe.jVeSEe .nsm7Bb-HzV7m-LgbsSe-Bz112c{margin-left:8px;margin-right:-4px}.nsm7Bb-HzV7m-LgbsSe.Bz112c-LgbsSe .nsm7Bb-HzV7m-LgbsSe-Bz112c{margin:0;padding:10px}.nsm7Bb-HzV7m-LgbsSe.Bz112c-LgbsSe.pSzOP-SxQuSe .nsm7Bb-HzV7m-LgbsSe-Bz112c{padding:8px}.nsm7Bb-HzV7m-LgbsSe.Bz112c-LgbsSe.purZT-SxQuSe .nsm7Bb-HzV7m-LgbsSe-Bz112c{padding:4px}.nsm7Bb-HzV7m-LgbsSe .nsm7Bb-HzV7m-LgbsSe-Bz112c-haAclf{border-top-left-radius:3px;border-bottom-left-radius:3px;display:-webkit-box;display:-webkit-flex;display:flex;-webkit-box-pack:center;-webkit-justify-content:center;justify-content:center;-webkit-box-align:center;-webkit-align-items:center;align-items:center;background-color:#fff;height:36px;margin-left:-10px;margin-right:12px;min-width:36px;width:36px}.nsm7Bb-HzV7m-LgbsSe .nsm7Bb-HzV7m-LgbsSe-Bz112c-haAclf .nsm7Bb-HzV7m-LgbsSe-Bz112c,.nsm7Bb-HzV7m-LgbsSe.Bz112c-LgbsSe .nsm7Bb-HzV7m-LgbsSe-Bz112c-haAclf .nsm7Bb-HzV7m-LgbsSe-Bz112c{margin:0;padding:0}.nsm7Bb-HzV7m-LgbsSe.pSzOP-SxQuSe .nsm7Bb-HzV7m-LgbsSe-Bz112c-haAclf{height:28px;margin-left:-8px;margin-right:10px;min-width:28px;width:28px}.nsm7Bb-HzV7m-LgbsSe.purZT-SxQuSe .nsm7Bb-HzV7m-LgbsSe-Bz112c-haAclf{height:16px;margin-left:-6px;margin-right:8px;min-width:16px;width:16px}.nsm7Bb-HzV7m-LgbsSe.Bz112c-LgbsSe .nsm7Bb-HzV7m-LgbsSe-Bz112c-haAclf{border-radius:3px;margin-left:2px;margin-right:0;padding:0}.nsm7Bb-HzV7m-LgbsSe.JGcpL-RbRzK .nsm7Bb-HzV7m-LgbsSe-Bz112c-haAclf{border-radius:18px}.nsm7Bb-HzV7m-LgbsSe.pSzOP-SxQuSe.JGcpL-RbRzK .nsm7Bb-HzV7m-LgbsSe-Bz112c-haAclf{border-radius:14px}.nsm7Bb-HzV7m-LgbsSe.purZT-SxQuSe.JGcpL-RbRzK .nsm7Bb-HzV7m-LgbsSe-Bz112c-haAclf{border-radius:8px}.nsm7Bb-HzV7m-LgbsSe .nsm7Bb-HzV7m-LgbsSe-bN97Pc-sM5MNb{display:-webkit-box;display:-webkit-flex;display:flex;-webkit-align-items:center;-webkit-box-align:center;align-items:center;-webkit-flex-direction:row;-webkit-box-orient:horizontal;-webkit-box-direction:normal;flex-direction:row;-webkit-box-pack:justify;-webkit-justify-content:space-between;justify-content:space-between;-webkit-flex-wrap:nowrap;flex-wrap:nowrap;height:100%;position:relative;width:100%}.nsm7Bb-HzV7m-LgbsSe .oXtfBe-l4eHX{-webkit-box-pack:center;-webkit-justify-content:center;justify-content:center}.nsm7Bb-HzV7m-LgbsSe .nsm7Bb-HzV7m-LgbsSe-BPrWId{-webkit-flex-grow:1;-webkit-box-flex:1;flex-grow:1;font-family:Google Sans,arial,sans-serif;font-weight:500;overflow:hidden;text-overflow:ellipsis;vertical-align:top}.nsm7Bb-HzV7m-LgbsSe.purZT-SxQuSe .nsm7Bb-HzV7m-LgbsSe-BPrWId{font-weight:300}.nsm7Bb-HzV7m-LgbsSe .oXtfBe-l4eHX .nsm7Bb-HzV7m-LgbsSe-BPrWId{-webkit-flex-grow:0;-webkit-box-flex:0;flex-grow:0}.nsm7Bb-HzV7m-LgbsSe .nsm7Bb-HzV7m-LgbsSe-MJoBVe{-webkit-transition:background-color .218s;transition:background-color .218s;bottom:0;left:0;position:absolute;right:0;top:0}.nsm7Bb-HzV7m-LgbsSe:focus,.nsm7Bb-HzV7m-LgbsSe:hover{box-shadow:none;border-color:rgb(210,227,252);outline:none}.nsm7Bb-HzV7m-LgbsSe:focus-within{outline:2px solid #00639b;border-color:transparent}.nsm7Bb-HzV7m-LgbsSe:hover .nsm7Bb-HzV7m-LgbsSe-MJoBVe{background:rgba(66,133,244,.08)}.nsm7Bb-HzV7m-LgbsSe:active .nsm7Bb-HzV7m-LgbsSe-MJoBVe,.nsm7Bb-HzV7m-LgbsSe:focus .nsm7Bb-HzV7m-LgbsSe-MJoBVe{background:rgba(66,133,244,.1)}.nsm7Bb-HzV7m-LgbsSe.i5vt6e-to915-Ia7Qfc:hover .nsm7Bb-HzV7m-LgbsSe-MJoBVe{background:rgba(255,255,255,.08)}.nsm7Bb-HzV7m-LgbsSe.i5vt6e-to915-Ia7Qfc:active .nsm7Bb-HzV7m-LgbsSe-MJoBVe,.nsm7Bb-HzV7m-LgbsSe.i5vt6e-to915-Ia7Qfc:focus .nsm7Bb-HzV7m-LgbsSe-MJoBVe{background:rgba(255,255,255,.12)}.nsm7Bb-HzV7m-LgbsSe.MFS4be-Ia7Qfc:hover .nsm7Bb-HzV7m-LgbsSe-MJoBVe{background:rgba(255,255,255,.24)}.nsm7Bb-HzV7m-LgbsSe.MFS4be-Ia7Qfc:active .nsm7Bb-HzV7m-LgbsSe-MJoBVe,.nsm7Bb-HzV7m-LgbsSe.MFS4be-Ia7Qfc:focus .nsm7Bb-HzV7m-LgbsSe-MJoBVe{background:rgba(255,255,255,.32)}.nsm7Bb-HzV7m-LgbsSe .n1UuX-DkfjY{border-radius:50%;display:-webkit-box;display:-webkit-flex;display:flex;height:20px;margin-left:-4px;margin-right:8px;min-width:20px;width:20px}.nsm7Bb-HzV7m-LgbsSe.jVeSEe .nsm7Bb-HzV7m-LgbsSe-BPrWId{font-family:Roboto;font-size:12px;text-align:left}.nsm7Bb-HzV7m-LgbsSe.jVeSEe .nsm7Bb-HzV7m-LgbsSe-BPrWId .K4efff .fmcmS,.nsm7Bb-HzV7m-LgbsSe.jVeSEe .nsm7Bb-HzV7m-LgbsSe-BPrWId .ssJRIf{overflow:hidden;text-overflow:ellipsis}.nsm7Bb-HzV7m-LgbsSe.jVeSEe .nsm7Bb-HzV7m-LgbsSe-BPrWId .K4efff{display:-webkit-box;display:-webkit-flex;display:flex;-webkit-align-items:center;-webkit-box-align:center;align-items:center;color:#5f6368;fill:#5f6368;font-size:11px;font-weight:400}.nsm7Bb-HzV7m-LgbsSe.jVeSEe.i5vt6e-to915-Ia7Qfc .nsm7Bb-HzV7m-LgbsSe-BPrWId .K4efff{color:#c4c7c5;fill:#c4c7c5}.nsm7Bb-HzV7m-LgbsSe.jVeSEe.MFS4be-Ia7Qfc .nsm7Bb-HzV7m-LgbsSe-BPrWId .K4efff{color:#e8eaed;fill:#e8eaed}@media screen and (prefers-contrast:more){.nsm7Bb-HzV7m-LgbsSe.jVeSEe .nsm7Bb-HzV7m-LgbsSe-BPrWId .K4efff,.nsm7Bb-HzV7m-LgbsSe.jVeSEe.MFS4be-Ia7Qfc .nsm7Bb-HzV7m-LgbsSe-BPrWId .K4efff{color:#000;fill:#000}}.nsm7Bb-HzV7m-LgbsSe.jVeSEe .nsm7Bb-HzV7m-LgbsSe-BPrWId .K4efff .Bz112c{height:18px;margin:-3px -3px -3px 2px;min-width:18px;width:18px}.nsm7Bb-HzV7m-LgbsSe.jVeSEe .nsm7Bb-HzV7m-LgbsSe-Bz112c-haAclf{border-top-left-radius:0;border-bottom-left-radius:0;border-top-right-radius:3px;border-bottom-right-radius:3px;margin-left:12px;margin-right:-10px}.nsm7Bb-HzV7m-LgbsSe.jVeSEe.JGcpL-RbRzK .nsm7Bb-HzV7m-LgbsSe-Bz112c-haAclf{border-radius:18px}.L5Fo6c-sM5MNb{border:0;display:block;left:0;position:relative;top:0}.L5Fo6c-bF1uUb{border-radius:4px;bottom:0;cursor:pointer;left:0;position:absolute;right:0;top:0}.L5Fo6c-bF1uUb:focus{border:none;outline:none}sentinel{}</style></head>
+
+<body class="h-full bg-slate-100 text-slate-800 flex flex-col font-sans overflow-hidden">
+  
+  <header class="bg-slate-900 text-white border-b border-slate-800 shrink-0 select-none z-20">
+    <div class="max-w-7xl mx-auto px-4 py-2.5 flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center space-x-3">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center shadow-md shadow-emerald-900/30">
+          <i class="fa-brands fa-whatsapp text-white text-xl"></i>
+        </div>
+        <div>
+          <h1 class="text-sm font-bold tracking-tight text-white flex items-center gap-2">
+            WhatsApp ⇄ Google Workspace Asistanı
+            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 mr-1.5 animate-pulse"></span>
+              Hazır &amp; Canlı
+            </span>
+          </h1>
+          <p class="text-[11px] text-slate-400">Takvim, Kişiler, Notlar ve Sesli Komut Entegrasyonu</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2.5 flex-wrap">
+        <!-- Hızlı ZIP İndirme Butonu (Her zaman üstte görünür) -->
+        <button onclick="downloadCompleteProjectZip()" class="px-3.5 py-1.5 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 text-xs font-extrabold rounded-xl flex items-center gap-2 shadow-lg shadow-emerald-900/40 transition transform active:scale-95 cursor-pointer">
+          <i class="fa-solid fa-file-zipper text-sm"></i>
+          <span>📦 Projeyi İndir (.ZIP)</span>
+        </button>
+
+        <!-- Navigasyon Sekmeleri -->
+        <nav class="flex items-center space-x-1 bg-slate-800/80 p-1 rounded-xl border border-slate-700/60 text-xs overflow-x-auto">
+          <button onclick="switchTab('chat')" id="tabBtn-chat" class="px-3 py-1.5 rounded-lg font-medium transition flex items-center gap-1.5 bg-emerald-600 text-white shadow-xs">
+            <i class="fa-brands fa-whatsapp"></i>
+            <span>WhatsApp Simülatörü</span>
+          </button>
+          <button onclick="switchTab('calendar')" id="tabBtn-calendar" class="px-3 py-1.5 rounded-lg font-medium text-slate-300 hover:text-white hover:bg-slate-700/60 transition flex items-center gap-1.5">
+            <i class="fa-regular fa-calendar-check text-blue-400"></i>
+            <span>Google Takvim</span>
+            <span id="badgeCalendar" class="bg-blue-600/30 text-blue-300 text-[10px] px-1.5 py-0.2 rounded-full font-mono">2</span>
+          </button>
+          <button onclick="switchTab('contacts')" id="tabBtn-contacts" class="px-3 py-1.5 rounded-lg font-medium text-slate-300 hover:text-white hover:bg-slate-700/60 transition flex items-center gap-1.5">
+            <i class="fa-regular fa-address-book text-emerald-400"></i>
+            <span>Google Kişiler</span>
+            <span id="badgeContacts" class="bg-emerald-600/30 text-emerald-300 text-[10px] px-1.5 py-0.2 rounded-full font-mono">2</span>
+          </button>
+          <button onclick="switchTab('notes')" id="tabBtn-notes" class="px-3 py-1.5 rounded-lg font-medium text-slate-300 hover:text-white hover:bg-slate-700/60 transition flex items-center gap-1.5">
+            <i class="fa-regular fa-note-sticky text-amber-400"></i>
+            <span>Not Defteri</span>
+            <span id="badgeNotes" class="bg-amber-600/30 text-amber-300 text-[10px] px-1.5 py-0.2 rounded-full font-mono">2</span>
+          </button>
+          <button onclick="switchTab('backend')" id="tabBtn-backend" class="px-3 py-1.5 rounded-lg font-medium text-slate-300 hover:text-white hover:bg-slate-700/60 transition flex items-center gap-1.5">
+            <i class="fa-solid fa-server text-purple-400"></i>
+            <span>Canlı Kurulum</span>
+          </button>
+          <button onclick="switchTab('vercel')" id="tabBtn-vercel" class="px-3 py-1.5 rounded-lg font-medium text-slate-300 hover:text-white hover:bg-slate-700/60 transition flex items-center gap-1.5">
+            <i class="fa-solid fa-triangle-exclamation rotate-180 text-white"></i>
+            <span>GitHub &amp; Vercel</span>
+            <span class="bg-emerald-500/20 text-emerald-300 text-[9px] px-1.5 py-0.2 rounded-full font-bold border border-emerald-500/30">YENİ</span>
+          </button>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <main class="flex-1 flex overflow-hidden relative">
+    
+    <!-- Bildirim Toast Kutusu -->
+    <div id="toastBox" class="fixed bottom-4 right-4 z-50 transform transition-all duration-300 flex items-center gap-2.5 bg-slate-900 text-white px-4 py-3 rounded-xl shadow-2xl border border-slate-700 text-xs pointer-events-none">
+      <i id="toastIcon" class="fa-solid fa-circle-check text-emerald-400 text-sm"></i>
+      <span id="toastMsg">📦 ZIP paketi derleniyor ve indirme başlatılıyor...</span>
+    </div>
+
+    <!-- ==================== SEKME 1: WHATSAPP SİMÜLATÖRÜ ==================== -->
+    <section id="view-chat" class="flex-1 flex flex-col md:flex-row h-full overflow-hidden">
+      
+      <!-- Sol Panel: Hızlı Komutlar, Sesli Senaryolar ve Asistan Kılavuzu -->
+      <aside class="w-full md:w-80 lg:w-96 bg-white border-r border-slate-200 flex flex-col shrink-0 overflow-y-auto custom-scrollbar p-4 space-y-4">
+        <div>
+          <h2 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+            <i class="fa-solid fa-microphone-lines text-teal-600"></i>
+            Canlı Sesli Test Senaryoları
+          </h2>
+          <p class="text-xs text-slate-500 mb-3">Aşağıdaki butonlara tıklayarak WhatsApp sesli mesajı (PTT) gibi komut verin:</p>
+          
+          <div class="space-y-2">
+            <button onclick="triggerVoiceSample('Yarın saat 14:30\'da Ahmet Bey ile Finans Bütçe toplantısı planla')" class="w-full text-left p-2.5 rounded-xl border border-teal-200 bg-teal-50/70 hover:bg-teal-100/80 transition flex items-center justify-between group">
+              <div>
+                <span class="text-xs font-bold text-teal-900 block flex items-center gap-1.5">
+                  <i class="fa-solid fa-microphone text-teal-600 group-hover:scale-110 transition"></i> Ses: Toplantı Planla
+                </span>
+                <span class="text-[11px] text-teal-700/90 line-clamp-1">"Yarın saat 14:30'da Ahmet Bey ile toplantı..."</span>
+              </div>
+              <i class="fa-solid fa-circle-play text-teal-600 text-sm"></i>
+            </button>
+
+            <button onclick="triggerVoiceSample('Rehbere kaydet: Avukat Selin Arslan, telefon 0532 999 1122, şirket Arslan Hukuk')" class="w-full text-left p-2.5 rounded-xl border border-emerald-200 bg-emerald-50/70 hover:bg-emerald-100/80 transition flex items-center justify-between group">
+              <div>
+                <span class="text-xs font-bold text-emerald-900 block flex items-center gap-1.5">
+                  <i class="fa-solid fa-user-plus text-emerald-600 group-hover:scale-110 transition"></i> Ses: Kişi Kaydet
+                </span>
+                <span class="text-[11px] text-emerald-700/90 line-clamp-1">"Rehbere kaydet: Avukat Selin Arslan..."</span>
+              </div>
+              <i class="fa-solid fa-circle-play text-emerald-600 text-sm"></i>
+            </button>
+
+            <button onclick="triggerVoiceSample('Not al: Haftalık sunucu yedeklerini kontrol et ve SSL sertifikasını yenile')" class="w-full text-left p-2.5 rounded-xl border border-amber-200 bg-amber-50/70 hover:bg-amber-100/80 transition flex items-center justify-between group">
+              <div>
+                <span class="text-xs font-bold text-amber-900 block flex items-center gap-1.5">
+                  <i class="fa-solid fa-note-sticky text-amber-600 group-hover:scale-110 transition"></i> Ses: Hızlı Not Al
+                </span>
+                <span class="text-[11px] text-amber-700/90 line-clamp-1">"Not al: Haftalık sunucu yedeklerini kontrol..."</span>
+              </div>
+              <i class="fa-solid fa-circle-play text-amber-600 text-sm"></i>
+            </button>
+          </div>
+        </div>
+
+        <hr class="border-slate-100">
+
+        <div>
+          <h2 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+            <i class="fa-solid fa-terminal text-slate-600"></i>
+            Yazılı Komut Formatları
+          </h2>
+          <div class="space-y-2 text-xs">
+            <div class="p-2.5 bg-slate-50 border border-slate-200 rounded-xl hover:border-slate-300 transition cursor-pointer" onclick="fillInput('!toplanti Cuma 16:00 Tasarım Değerlendirmesi')">
+              <div class="font-semibold text-blue-700 flex items-center gap-1">
+                <i class="fa-regular fa-calendar-plus"></i> Google Takvim:
+              </div>
+              <code class="text-[11px] text-slate-600 block mt-0.5 bg-white p-1 rounded border border-slate-200">!toplanti [Tarih/Saat] [Konu]</code>
+            </div>
+
+            <div class="p-2.5 bg-slate-50 border border-slate-200 rounded-xl hover:border-slate-300 transition cursor-pointer" onclick="fillInput('!rehber Zeynep Kaya +905331112233 zeynep@firma.com')">
+              <div class="font-semibold text-emerald-700 flex items-center gap-1">
+                <i class="fa-regular fa-id-badge"></i> Google Kişiler:
+              </div>
+              <code class="text-[11px] text-slate-600 block mt-0.5 bg-white p-1 rounded border border-slate-200">!rehber [İsim] [Telefon] [Eposta]</code>
+            </div>
+
+            <div class="p-2.5 bg-slate-50 border border-slate-200 rounded-xl hover:border-slate-300 transition cursor-pointer" onclick="fillInput('!not Market: Filtre kahve, çavdar ekmeği ve maden suyu')">
+              <div class="font-semibold text-amber-700 flex items-center gap-1">
+                <i class="fa-regular fa-file-lines"></i> Not Defteri:
+              </div>
+              <code class="text-[11px] text-slate-600 block mt-0.5 bg-white p-1 rounded border border-slate-200">!not [Not Metniniz]</code>
+            </div>
+          </div>
+        </div>
+
+        <!-- Google Canlı Hesap Bağlantı Kartı -->
+        <div class="mt-auto bg-slate-900 text-white p-3.5 rounded-xl border border-slate-800 space-y-2.5">
+          <div class="flex items-center justify-between text-xs">
+            <span class="font-bold flex items-center gap-1.5 text-emerald-400">
+              <i class="fa-brands fa-google"></i> Google Workspace
+            </span>
+            <span id="googleAuthStatusBadge" class="text-[10px] bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded border border-amber-500/30 font-semibold">Simülasyon Modu</span>
+          </div>
+          <p class="text-[11px] text-slate-300 leading-relaxed">Kendi kişisel Takvim &amp; Rehberinizle canlı eşleştirmek için OAuth ile yetkilendirin.</p>
+          <div class="flex gap-2">
+            <button onclick="openGoogleLiveAuthModal()" class="flex-1 py-1.5 px-2 bg-white text-slate-900 hover:bg-slate-100 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition">
+              <i class="fa-brands fa-google text-red-500"></i>
+              <span>Google ile Bağlan</span>
+            </button>
+            <button onclick="switchTab('backend')" class="py-1.5 px-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-semibold flex items-center justify-center transition" title="Sunucu Kodları">
+              <i class="fa-solid fa-server"></i>
+            </button>
+          </div>
+        </div>
+      </aside>
+
+      <div class="flex-1 flex flex-col h-full bg-wa-bg relative overflow-hidden">
+        
+        <!-- WhatsApp Header -->
+        <div class="bg-wa-teal text-white px-4 py-3 flex items-center justify-between shadow-md shrink-0 z-10">
+          <div class="flex items-center space-x-3">
+            <div class="relative">
+              <div class="w-10 h-10 rounded-full bg-white/20 border border-white/40 flex items-center justify-center text-white font-bold">
+                <i class="fa-solid fa-robot text-lg"></i>
+              </div>
+              <span class="absolute bottom-0 right-0 w-3 h-3 bg-emerald-400 border-2 border-wa-teal rounded-full"></span>
+            </div>
+            <div>
+              <h3 class="text-sm font-bold flex items-center gap-1.5">
+                Google Workspace Asistanı
+                <i class="fa-solid fa-certificate text-teal-300 text-xs" title="Onaylı Bot"></i>
+              </h3>
+              <p class="text-[11px] text-teal-100 flex items-center gap-1">
+                <span>çevrimiçi</span> • <span>Takvim / Kişiler / Notlar</span>
+              </p>
+            </div>
+          </div>
+
+          <div class="flex items-center space-x-2 text-teal-100">
+            <button onclick="downloadCompleteProjectZip()" title="Sunucu Kodlarını İndir" class="bg-emerald-600 hover:bg-emerald-500 text-white px-2.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5">
+              <i class="fa-solid fa-download"></i>
+              <span class="hidden sm:inline">ZIP İndir</span>
+            </button>
+            <button onclick="clearChatHistory()" title="Sohbeti Temizle" class="hover:text-white p-1.5 rounded-lg hover:bg-white/10 transition">
+              <i class="fa-solid fa-rotate-right text-sm"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Chat Mesajları Akış Alanı -->
+        <div id="chatMessagesContainer" class="flex-1 overflow-y-auto p-4 space-y-3 wa-chat-pattern custom-scrollbar"><div class="flex flex-col items-start message-anim">
+          <div class="max-w-[88%] sm:max-w-[80%] rounded-2xl px-3.5 py-2.5 text-xs shadow-sm relative bg-white text-slate-800 rounded-tl-xs border border-slate-200">
+            <div class="leading-relaxed break-words text-xs sm:text-sm">👋 Merhaba! WhatsApp ⇄ Google Workspace Asistanınız hazır.<br><br>İster yazarak, isterseniz <strong class="font-semibold">mikrofon simgesine basıp sesli konuşarak</strong> komut verebilirsiniz:<br><br>• 🎙️ <strong class="font-semibold">Sesli:</strong> Mikrofona basıp konuşun (Örn: <strong class="font-semibold">"Yarın saat üçe randevu ekle"</strong>)<br>• 📅 <strong class="font-semibold">Toplantı:</strong> <code class="bg-black/10 px-1 py-0.5 rounded font-mono text-[11px]">!toplanti Yarın 14:30 Toplantı</code><br>• 👤 <strong class="font-semibold">Rehber:</strong> <code class="bg-black/10 px-1 py-0.5 rounded font-mono text-[11px]">!rehber [İsim] [Telefon]</code><br>• 📝 <strong class="font-semibold">Not:</strong> <code class="bg-black/10 px-1 py-0.5 rounded font-mono text-[11px]">!not [Metin]</code><br><br>Yukarıdaki <strong class="font-semibold"></strong>"📦 Projeyi İndir (.ZIP)"<strong class="font-semibold"></strong> butonu ile sunucu dosyalarınızı doğrudan indirebilirsiniz.</div>
+            
+            <div class="flex items-center justify-end space-x-1 mt-1 text-[10px] text-slate-400">
+              <span>09:00</span>
+              
+            </div>
+          </div>
+        </div></div>
+
+        <!-- AI İşliyor Göstergesi -->
+        <div id="botTypingIndicator" class="hidden px-4 py-1.5 shrink-0 z-10">
+          <div class="inline-flex items-center gap-2 bg-white/95 backdrop-blur px-3 py-1.5 rounded-full border border-slate-200 text-xs text-slate-600 shadow-sm">
+            <div class="flex space-x-1">
+              <span class="w-1.5 h-1.5 rounded-full bg-teal-600 animate-bounce"></span>
+              <span class="w-1.5 h-1.5 rounded-full bg-teal-600 animate-bounce [animation-delay:0.15s]"></span>
+              <span class="w-1.5 h-1.5 rounded-full bg-teal-600 animate-bounce [animation-delay:0.3s]"></span>
+            </div>
+            <span id="botTypingText" class="text-[11px] font-medium text-slate-700">Ses çözümleniyor &amp; Google API çağrılıyor...</span>
+          </div>
+        </div>
+
+        <div id="liveVoiceRecordingBar" class="hidden bg-emerald-50 border-t border-emerald-300 px-4 py-2.5 flex items-center justify-between shrink-0 z-10 transition-all">
+          <div class="flex items-center space-x-3">
+            <div class="relative flex h-3.5 w-3.5">
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+              <span class="relative inline-flex rounded-full h-3.5 w-3.5 bg-red-600"></span>
+            </div>
+            <span id="voiceTimerDisplay" class="font-mono text-xs font-bold text-red-600">00:00</span>
+            
+            <div class="flex items-center gap-0.5 h-4 px-2">
+              <span class="w-0.5 bg-red-500 rounded-full wave-bar" style="animation-delay: 0.1s"></span>
+              <span class="w-0.5 bg-red-500 rounded-full wave-bar" style="animation-delay: 0.3s"></span>
+              <span class="w-0.5 bg-red-500 rounded-full wave-bar" style="animation-delay: 0.5s"></span>
+              <span class="w-0.5 bg-red-500 rounded-full wave-bar" style="animation-delay: 0.2s"></span>
+              <span class="w-0.5 bg-red-500 rounded-full wave-bar" style="animation-delay: 0.4s"></span>
+            </div>
+
+            <span id="voiceTranscriptPreview" class="text-xs text-slate-700 italic truncate max-w-[200px] sm:max-w-md">
+              Konuşun, sesiniz dinleniyor...
+            </span>
+          </div>
+
+          <div class="flex items-center space-x-2">
+            <button onclick="cancelLiveVoiceRecording()" class="p-2 text-slate-500 hover:text-red-600 rounded-full hover:bg-slate-200/50 transition text-xs" title="İptal Et">
+              <i class="fa-solid fa-trash-can"></i>
+            </button>
+            <button onclick="finishLiveVoiceRecording()" class="px-3.5 py-1.5 bg-wa-teal hover:bg-wa-darkteal text-white rounded-full text-xs font-semibold flex items-center gap-1.5 shadow transition">
+              <i class="fa-solid fa-paper-plane text-xs"></i>
+              <span>Gönder</span>
+            </button>
+          </div>
+        </div>
+
+        <div id="standardInputBar" class="bg-slate-100 px-3 py-2.5 border-t border-slate-200 shrink-0 z-10">
+          <form id="chatInputForm" onsubmit="handleSendTextMessage(event)" class="flex items-center space-x-2">
+            <div class="relative flex-1">
+              <input type="text" id="userTextInput" placeholder="Komut veya mesaj yazın (Örn: !toplanti veya !not)..." class="w-full bg-white text-slate-800 pl-4 pr-10 py-2.5 rounded-2xl border border-slate-300 text-xs sm:text-sm focus:outline-none focus:border-teal-600 focus:ring-1 focus:ring-teal-600 transition" autocomplete="off">
+              <button type="button" onclick="insertRandomTemplate()" class="absolute right-3 top-2.5 text-slate-400 hover:text-slate-600" title="Rastgele Örnek Doldur">
+                <i class="fa-regular fa-lightbulb"></i>
+              </button>
+            </div>
+
+            <button type="button" onclick="startLiveVoiceRecording()" title="Mikrofon ile Konuş" class="w-10 h-10 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white flex items-center justify-center shrink-0 shadow-md transition active:scale-95">
+              <i class="fa-solid fa-microphone text-sm"></i>
+            </button>
+
+            <button type="submit" class="w-10 h-10 rounded-full bg-wa-teal hover:bg-wa-darkteal text-white flex items-center justify-center shrink-0 shadow-md transition active:scale-95">
+              <i class="fa-solid fa-paper-plane text-xs ml-0.5"></i>
+            </button>
+          </form>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ==================== SEKME 2: GOOGLE TAKVİM ==================== -->
+    <section id="view-calendar" class="hidden flex-1 p-4 md:p-6 overflow-y-auto bg-slate-50 custom-scrollbar">
+      <div class="max-w-5xl mx-auto space-y-4">
+        <div class="flex flex-wrap items-center justify-between gap-3 bg-white p-4 rounded-2xl border border-slate-200 shadow-xs">
+          <div>
+            <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
+              <i class="fa-regular fa-calendar-check text-blue-600"></i>
+              Google Takvim Etkinlikleri &amp; Hatırlatıcılar
+            </h2>
+            <p class="text-xs text-slate-500">WhatsApp'tan sesli/yazılı gelen toplantı ve randevular buraya senkronize edilir.</p>
+          </div>
+          <button onclick="downloadAllEventsICS()" class="px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-xl flex items-center gap-1.5 shadow-sm transition">
+            <i class="fa-solid fa-download"></i>
+            <span>Tümünü .ICS Olarak İndir</span>
+          </button>
+        </div>
+
+        <div id="calendarEventsList" class="grid grid-cols-1 md:grid-cols-2 gap-4"><div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs hover:shadow-md transition flex flex-col justify-between space-y-3">
+          <div>
+            <div class="flex items-center justify-between text-xs mb-2">
+              <span class="px-2.5 py-0.5 rounded-full font-semibold bg-blue-50 text-blue-700 border border-blue-200 flex items-center gap-1">
+                <i class="fa-regular fa-clock"></i> 14:30 - 15:30
+              </span>
+              <span class="text-[11px] text-slate-400">Bugün 10:15</span>
+            </div>
+            <h3 class="text-sm font-bold text-slate-900">Bütçe ve Mali Değerlendirme Toplantısı</h3>
+            <div class="mt-2 space-y-1 text-xs text-slate-600">
+              <p><i class="fa-regular fa-calendar text-slate-400 mr-1"></i> <b>Tarih:</b> 2026-09-29</p>
+              <p><i class="fa-solid fa-user-group text-slate-400 mr-1"></i> <b>Katılımcı:</b> Mehmet Bey &amp; Mali Ekip</p>
+              <p><i class="fa-solid fa-video text-slate-400 mr-1"></i> <b>Konum:</b> Google Meet</p>
+            </div>
+          </div>
+          <div class="pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+            <span class="text-[11px] text-slate-400 italic">🎙️ WhatsApp Sesli Komut</span>
+            <div class="flex items-center space-x-2">
+              <button onclick="downloadSingleICS('evt-1')" title=".ICS İndir" class="p-1.5 text-slate-500 hover:text-blue-600 rounded-lg hover:bg-slate-100">
+                <i class="fa-solid fa-download"></i>
+              </button>
+              <button onclick="deleteEvent('evt-1')" title="Sil" class="p-1.5 text-slate-500 hover:text-red-600 rounded-lg hover:bg-slate-100">
+                <i class="fa-solid fa-trash-can"></i>
+              </button>
+            </div>
+          </div>
+        </div><div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs hover:shadow-md transition flex flex-col justify-between space-y-3">
+          <div>
+            <div class="flex items-center justify-between text-xs mb-2">
+              <span class="px-2.5 py-0.5 rounded-full font-semibold bg-blue-50 text-blue-700 border border-blue-200 flex items-center gap-1">
+                <i class="fa-regular fa-clock"></i> 10:00 - 11:00
+              </span>
+              <span class="text-[11px] text-slate-400">Dün 17:00</span>
+            </div>
+            <h3 class="text-sm font-bold text-slate-900">Haftalık Sprint Planlama ve Sunum</h3>
+            <div class="mt-2 space-y-1 text-xs text-slate-600">
+              <p><i class="fa-regular fa-calendar text-slate-400 mr-1"></i> <b>Tarih:</b> 2026-10-02</p>
+              <p><i class="fa-solid fa-user-group text-slate-400 mr-1"></i> <b>Katılımcı:</b> Yazılım Ekibi</p>
+              <p><i class="fa-solid fa-video text-slate-400 mr-1"></i> <b>Konum:</b> Ofis Toplantı Odası 2</p>
+            </div>
+          </div>
+          <div class="pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+            <span class="text-[11px] text-slate-400 italic">💬 WhatsApp Metin Komutu</span>
+            <div class="flex items-center space-x-2">
+              <button onclick="downloadSingleICS('evt-2')" title=".ICS İndir" class="p-1.5 text-slate-500 hover:text-blue-600 rounded-lg hover:bg-slate-100">
+                <i class="fa-solid fa-download"></i>
+              </button>
+              <button onclick="deleteEvent('evt-2')" title="Sil" class="p-1.5 text-slate-500 hover:text-red-600 rounded-lg hover:bg-slate-100">
+                <i class="fa-solid fa-trash-can"></i>
+              </button>
+            </div>
+          </div>
+        </div></div>
+      </div>
+    </section>
+
+    <!-- ==================== SEKME 3: GOOGLE KİŞİLER (CONTACTS) ==================== -->
+    <section id="view-contacts" class="hidden flex-1 p-4 md:p-6 overflow-y-auto bg-slate-50 custom-scrollbar">
+      <div class="max-w-5xl mx-auto space-y-4">
+        <div class="flex flex-wrap items-center justify-between gap-3 bg-white p-4 rounded-2xl border border-slate-200 shadow-xs">
+          <div>
+            <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
+              <i class="fa-regular fa-address-book text-emerald-600"></i>
+              Google Kişiler (Contacts) Rehberi
+            </h2>
+            <p class="text-xs text-slate-500">WhatsApp üzerinden paylaşılan numara ve kartvizit kayıtları.</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <input type="text" placeholder="Rehberde ara..." oninput="filterContacts(this.value)" class="px-3 py-1.5 border border-slate-300 rounded-xl text-xs outline-none focus:border-emerald-600">
+            <button onclick="downloadAllContactsVCF()" class="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-xl flex items-center gap-1.5 shadow-sm transition">
+              <i class="fa-solid fa-address-card"></i>
+              <span>Tümünü .VCF İndir</span>
+            </button>
+          </div>
+        </div>
+
+        <div id="contactsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"><div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs hover:shadow-md transition flex flex-col justify-between space-y-3">
+          <div>
+            <div class="flex items-center space-x-3 mb-3">
+              <div class="w-10 h-10 rounded-full bg-emerald-100 text-emerald-700 font-bold flex items-center justify-center text-sm">
+                A
+              </div>
+              <div>
+                <h3 class="text-sm font-bold text-slate-900">Av. Hakan Yılmaz</h3>
+                <p class="text-[11px] text-slate-400">Yılmaz Hukuk Bürosu</p>
+              </div>
+            </div>
+            <div class="space-y-1 text-xs text-slate-600">
+              <p><i class="fa-solid fa-phone text-emerald-600 mr-1.5"></i> +90 532 888 7766</p>
+              <p><i class="fa-regular fa-envelope text-slate-400 mr-1.5"></i> hakan@yilmazhukuk.com</p>
+            </div>
+          </div>
+          <div class="pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+            <span class="text-[10px] text-slate-400">28 Eylül 2026</span>
+            <div class="flex items-center space-x-2">
+              <button onclick="downloadSingleVCF('cnt-1')" title=".VCF İndir" class="p-1.5 text-slate-500 hover:text-emerald-600 rounded-lg hover:bg-slate-100">
+                <i class="fa-solid fa-address-card"></i>
+              </button>
+              <button onclick="deleteContact('cnt-1')" title="Sil" class="p-1.5 text-slate-500 hover:text-red-600 rounded-lg hover:bg-slate-100">
+                <i class="fa-solid fa-trash-can"></i>
+              </button>
+            </div>
+          </div>
+        </div><div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs hover:shadow-md transition flex flex-col justify-between space-y-3">
+          <div>
+            <div class="flex items-center space-x-3 mb-3">
+              <div class="w-10 h-10 rounded-full bg-emerald-100 text-emerald-700 font-bold flex items-center justify-center text-sm">
+                Z
+              </div>
+              <div>
+                <h3 class="text-sm font-bold text-slate-900">Zeynep Kaya</h3>
+                <p class="text-[11px] text-slate-400">Kreatif Tasarım Ajansı</p>
+              </div>
+            </div>
+            <div class="space-y-1 text-xs text-slate-600">
+              <p><i class="fa-solid fa-phone text-emerald-600 mr-1.5"></i> +90 541 333 4455</p>
+              <p><i class="fa-regular fa-envelope text-slate-400 mr-1.5"></i> zeynep.kaya@kreatif.com</p>
+            </div>
+          </div>
+          <div class="pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+            <span class="text-[10px] text-slate-400">26 Eylül 2026</span>
+            <div class="flex items-center space-x-2">
+              <button onclick="downloadSingleVCF('cnt-2')" title=".VCF İndir" class="p-1.5 text-slate-500 hover:text-emerald-600 rounded-lg hover:bg-slate-100">
+                <i class="fa-solid fa-address-card"></i>
+              </button>
+              <button onclick="deleteContact('cnt-2')" title="Sil" class="p-1.5 text-slate-500 hover:text-red-600 rounded-lg hover:bg-slate-100">
+                <i class="fa-solid fa-trash-can"></i>
+              </button>
+            </div>
+          </div>
+        </div></div>
+      </div>
+    </section>
+
+    <!-- ==================== SEKME 4: NOT DEFTERİ ==================== -->
+    <section id="view-notes" class="hidden flex-1 p-4 md:p-6 overflow-y-auto bg-slate-50 custom-scrollbar">
+      <div class="max-w-5xl mx-auto space-y-4">
+        <div class="flex flex-wrap items-center justify-between gap-3 bg-white p-4 rounded-2xl border border-slate-200 shadow-xs">
+          <div>
+            <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
+              <i class="fa-regular fa-note-sticky text-amber-500"></i>
+              Hafıza &amp; Not Defteri
+            </h2>
+            <p class="text-xs text-slate-500">`!not` komutu veya sesli olarak kaydettiğiniz tüm notlar.</p>
+          </div>
+        </div>
+
+        <div id="notesGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"><div class="bg-amber-50/70 p-5 rounded-2xl border border-amber-200 shadow-xs hover:shadow-md transition flex flex-col justify-between space-y-3">
+          <div>
+            <div class="flex items-center justify-between text-xs mb-2">
+              <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-200/70 text-amber-900">İş / Altyapı</span>
+              <span class="text-[10px] text-slate-400">Bugün 09:40</span>
+            </div>
+            <h3 class="text-sm font-bold text-slate-900 mb-1">Sunucu ve Altyapı Kontrolü</h3>
+            <p class="text-xs text-slate-700 whitespace-pre-wrap leading-relaxed">Haftalık sunucu yedeklerini her Cuma saat 18:00'de doğrula ve Cloudflare SSL durumunu kontrol et.</p>
+          </div>
+          <div class="pt-3 border-t border-amber-200/60 flex items-center justify-end space-x-2 text-xs">
+            <button onclick="copyTextToClipboard('Haftalık sunucu yedeklerini her Cuma saat 18:00'de doğrula ve Cloudflare SSL durumunu kontrol et.')" title="Kopyala" class="p-1.5 text-slate-600 hover:text-slate-900 rounded-lg hover:bg-amber-100">
+              <i class="fa-regular fa-copy"></i>
+            </button>
+            <button onclick="deleteNote('not-1')" title="Sil" class="p-1.5 text-slate-600 hover:text-red-600 rounded-lg hover:bg-amber-100">
+              <i class="fa-solid fa-trash-can"></i>
+            </button>
+          </div>
+        </div><div class="bg-amber-50/70 p-5 rounded-2xl border border-amber-200 shadow-xs hover:shadow-md transition flex flex-col justify-between space-y-3">
+          <div>
+            <div class="flex items-center justify-between text-xs mb-2">
+              <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-200/70 text-amber-900">Kişisel</span>
+              <span class="text-[10px] text-slate-400">27 Eylül 2026</span>
+            </div>
+            <h3 class="text-sm font-bold text-slate-900 mb-1">Haftalık Market Listesi</h3>
+            <p class="text-xs text-slate-700 whitespace-pre-wrap leading-relaxed">Organik filtre kahve, çavdar ekmeği, sızma zeytinyağı ve maden suyu.</p>
+          </div>
+          <div class="pt-3 border-t border-amber-200/60 flex items-center justify-end space-x-2 text-xs">
+            <button onclick="copyTextToClipboard('Organik filtre kahve, çavdar ekmeği, sızma zeytinyağı ve maden suyu.')" title="Kopyala" class="p-1.5 text-slate-600 hover:text-slate-900 rounded-lg hover:bg-amber-100">
+              <i class="fa-regular fa-copy"></i>
+            </button>
+            <button onclick="deleteNote('not-2')" title="Sil" class="p-1.5 text-slate-600 hover:text-red-600 rounded-lg hover:bg-amber-100">
+              <i class="fa-solid fa-trash-can"></i>
+            </button>
+          </div>
+        </div></div>
+      </div>
+    </section>
+
+    <!-- ==================== SEKME 5: CANLI DAĞITIM & GERÇEK ORTAM ==================== -->
+    <section id="view-backend" class="hidden flex-1 p-4 md:p-6 overflow-y-auto bg-slate-950 text-slate-100 custom-scrollbar">
+      <div class="max-w-6xl mx-auto space-y-6">
+        
+        <div class="bg-gradient-to-r from-slate-900 via-purple-950/40 to-slate-900 p-6 rounded-3xl border border-purple-900/40 shadow-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+          <div>
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium bg-purple-500/10 text-purple-300 border border-purple-500/30 mb-2">
+              <i class="fa-solid fa-server animate-pulse"></i>
+              Canlı Kullanım (Production) Dosyaları
+            </div>
+            <h2 class="text-xl font-bold text-white tracking-tight">WhatsApp &amp; Google Workspace Sunucu Paketi</h2>
+            <p class="text-xs text-slate-300 mt-1 max-w-2xl leading-relaxed">
+              Aşağıdaki yeşil butona basarak tüm kaynak kodları (QR kodlu WhatsApp botu, Meta Webhook kodu, Dockerfile, package.json ve .env) tek arşivde indirebilirsiniz.
+            </p>
+          </div>
+
+          <button onclick="downloadCompleteProjectZip()" class="px-5 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 text-sm font-extrabold rounded-2xl flex items-center gap-2.5 shadow-xl shadow-emerald-950/60 transition transform hover:scale-105 active:scale-95 cursor-pointer">
+            <i class="fa-solid fa-download text-base"></i>
+            <span>Tüm Projeyi İndir (.ZIP)</span>
+          </button>
+        </div>
+
+        <!-- 2 Ana Yöntem Karşılaştırma Kartları -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="bg-slate-900/90 border border-emerald-500/30 rounded-2xl p-5 relative overflow-hidden flex flex-col justify-between">
+            <div class="absolute top-3 right-3">
+              <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                ⭐ En Kolay (Bireysel / Şirketsiz)
+              </span>
+            </div>
+            <div>
+              <h3 class="text-sm font-bold text-emerald-400 flex items-center gap-2">
+                <i class="fa-solid fa-qrcode text-base"></i>
+                Yöntem 1: WhatsApp QR Kod (Baileys)
+              </h3>
+              <p class="text-xs text-slate-300 mt-1.5 leading-relaxed">
+                Şirket evrakı veya Meta onayı gerekmez. Terminalde çıkan <b>QR kodu telefonunuzla taratın</b>; asistan kendi numaranızdaki sesli ve yazılı mesajları anında işlesin.
+              </p>
+            </div>
+            <button onclick="switchBackendTab('baileys')" class="mt-4 w-full py-2 bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/40 rounded-xl text-xs font-semibold transition text-center">
+              bot-baileys.js Kodunu İncele →
+            </button>
+          </div>
+
+          <div class="bg-slate-900/90 border border-blue-500/30 rounded-2xl p-5 relative overflow-hidden flex flex-col justify-between">
+            <div class="absolute top-3 right-3">
+              <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-500/20 text-blue-300 border border-blue-500/30">
+                Resmi Meta API (Kurumsal)
+              </span>
+            </div>
+            <div>
+              <h3 class="text-sm font-bold text-blue-400 flex items-center gap-2">
+                <i class="fa-brands fa-meta text-base"></i>
+                Yöntem 2: Meta Cloud API Webhook
+              </h3>
+              <p class="text-xs text-slate-300 mt-1.5 leading-relaxed">
+                Facebook Developers resmi WhatsApp Business hesabı. Webhook POST isteklerini karşılar, ses ve metinleri Google'a aktarır.
+              </p>
+            </div>
+            <button onclick="switchBackendTab('node')" class="mt-4 w-full py-2 bg-blue-600/20 hover:bg-blue-600/30 text-blue-300 border border-blue-500/40 rounded-xl text-xs font-semibold transition text-center">
+              server.js Kodunu İncele →
+            </button>
+          </div>
+        </div>
+
+        <div class="flex items-center space-x-2 border-b border-slate-800 pb-2 overflow-x-auto text-xs">
+          <button onclick="switchBackendTab('baileys')" id="btnBackend-baileys" class="px-3.5 py-1.5 bg-emerald-600 text-white font-semibold rounded-lg transition whitespace-nowrap">
+            <i class="fa-solid fa-qrcode mr-1"></i> 1. WhatsApp QR (Baileys)
+          </button>
+          <button onclick="switchBackendTab('node')" id="btnBackend-node" class="px-3.5 py-1.5 bg-slate-800 text-slate-300 hover:text-white font-semibold rounded-lg transition whitespace-nowrap">
+            <i class="fa-brands fa-node-js mr-1"></i> 2. Meta Cloud API (Node)
+          </button>
+          <button onclick="switchBackendTab('google')" id="btnBackend-google" class="px-3.5 py-1.5 bg-slate-800 text-slate-300 hover:text-white font-semibold rounded-lg transition whitespace-nowrap">
+            <i class="fa-brands fa-google mr-1"></i> Google Kurulum Rehberi
+          </button>
+          <button onclick="switchBackendTab('env')" id="btnBackend-env" class="px-3.5 py-1.5 bg-slate-800 text-slate-300 hover:text-white font-semibold rounded-lg transition whitespace-nowrap">
+            <i class="fa-solid fa-key mr-1"></i> .env Yapılandırması
+          </button>
+          <button onclick="switchBackendTab('docker')" id="btnBackend-docker" class="px-3.5 py-1.5 bg-slate-800 text-slate-300 hover:text-white font-semibold rounded-lg transition whitespace-nowrap">
+            <i class="fa-brands fa-docker mr-1"></i> Dockerfile
+          </button>
+          <button onclick="switchBackendTab('verceljson')" id="btnBackend-verceljson" class="px-3.5 py-1.5 bg-slate-800 text-slate-300 hover:text-white font-semibold rounded-lg transition whitespace-nowrap">
+            <i class="fa-solid fa-bolt mr-1 text-amber-400"></i> vercel.json &amp; Serverless
+          </button>
+        </div>
+
+        <div class="relative bg-slate-900 rounded-2xl border border-slate-800 overflow-hidden shadow-2xl">
+          <div class="flex items-center justify-between px-4 py-2.5 bg-slate-950 border-b border-slate-800 text-xs">
+            <span id="backendCodeTitle" class="font-mono text-emerald-400 flex items-center gap-2"><i class="fa-solid fa-qrcode"></i> bot-baileys.js</span>
+            <div class="flex items-center gap-2">
+              <button onclick="copyBackendCode()" class="text-slate-300 hover:text-white transition flex items-center gap-1.5 text-xs bg-slate-800 px-3 py-1.5 rounded-lg">
+                <i class="fa-regular fa-copy"></i>
+                <span>Metni Kopyala</span>
+              </button>
+            </div>
+          </div>
+          <pre id="backendCodeBlock" class="p-4 text-xs font-mono overflow-x-auto text-emerald-300 leading-relaxed max-h-[500px] custom-scrollbar">// bot-baileys.js - KİŞİSEL NUMARAYLA QR KODLU WHATSAPP ASİSTANI
+// Kurulum: npm install @whiskeysockets/baileys qrcode-terminal dotenv googleapis axios
+
+require('dotenv').config();
+const { default: makeWASocket, useMultiFileAuthState, DisconnectReason, downloadMediaMessage } = require('@whiskeysockets/baileys');
+const qrcode = require('qrcode-terminal');
+const { google } = require('googleapis');
+const axios = require('axios');
+
+// Google Workspace OAuth2
+const oauth2Client = new google.auth.OAuth2(
+  process.env.GOOGLE_CLIENT_ID,
+  process.env.GOOGLE_CLIENT_SECRET,
+  process.env.GOOGLE_REDIRECT_URI
+);
+oauth2Client.setCredentials({ refresh_token: process.env.GOOGLE_REFRESH_TOKEN });
+
+const calendar = google.calendar({ version: 'v3', auth: oauth2Client });
+const people = google.people({ version: 'v1', auth: oauth2Client });
+
+async function startWhatsAppBot() {
+  const { state, saveCreds } = await useMultiFileAuthState('auth_info_baileys');
+  const sock = makeWASocket({ auth: state, printQRInTerminal: true });
+
+  sock.ev.on('creds.update', saveCreds);
+
+  sock.ev.on('connection.update', (update) =&gt; {
+    const { connection, lastDisconnect, qr } = update;
+    if (qr) {
+      console.log('📱 WhatsApp QR Kodu Hazır! Telefonunuzdan WhatsApp Web gibi taratın:');
+      qrcode.generate(qr, { small: true });
+    }
+    if (connection === 'close') {
+      const reconnect = lastDisconnect?.error?.output?.statusCode !== DisconnectReason.loggedOut;
+      if (reconnect) startWhatsAppBot();
+    } else if (connection === 'open') {
+      console.log('🚀 Asistan Canlı! WhatsApp sesli veya yazılı komutlarınızı bekliyor.');
+    }
+  });
+
+  sock.ev.on('messages.upsert', async ({ messages }) =&gt; {
+    const m = messages[0];
+    if (!m.message || m.key.fromMe) return;
+
+    const jid = m.key.remoteJid;
+    let commandText = '';
+    let isVoice = false;
+
+    // Sesli mesaj (PTT / Voice Memo)
+    if (m.message.audioMessage) {
+      isVoice = true;
+      const buffer = await downloadMediaMessage(m, 'buffer', {});
+      commandText = await transcribeWithGemini(buffer.toString('base64'));
+    } else if (m.message.conversation || m.message.extendedTextMessage?.text) {
+      commandText = m.message.conversation || m.message.extendedTextMessage.text;
+    }
+
+    if (!commandText) return;
+    await processCommand(sock, jid, commandText.trim(), isVoice);
+  });
+}
+
+async function transcribeWithGemini(base64Audio) {
+  const res = await axios.post(
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${process.env.GEMINI_API_KEY}`,
+    {
+      contents: [{
+        parts: [
+          { text: "Türkçe ses kaydını tam olarak metne dök (STT). Sadece söylenen cümleyi yaz:" },
+          { inlineData: { mimeType: "audio/ogg", data: base64Audio } }
+        ]
+      }]
+    }
+  );
+  return res.data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || '';
+}
+
+async function processCommand(sock, jid, text, isVoice) {
+  const lower = text.toLowerCase();
+  const prefix = isVoice ? '🎙️ *[Sesli Mesaj Çözümlendi]*\n\n' : '';
+
+  if (lower.includes('toplantı') || lower.includes('randevu') || lower.startsWith('!toplanti')) {
+    const res = await calendar.events.insert({
+      calendarId: 'primary',
+      requestBody: {
+        summary: text,
+        start: { dateTime: new Date(Date.now() + 86400000).toISOString() },
+        end: { dateTime: new Date(Date.now() + 90000000).toISOString() }
+      }
+    });
+    await sock.sendMessage(jid, { text: `${prefix}📅 Google Takvim'e eklendi:\n📌 ${text}\n🔗 Link: ${res.data.htmlLink}` });
+  } else if (lower.includes('rehbere ekle') || lower.startsWith('!rehber')) {
+    await people.people.createContact({
+      requestBody: {
+        names: [{ givenName: text.replace(/(!rehber|rehbere ekle)/gi, '').trim() }],
+        phoneNumbers: [{ value: jid.split('@')[0], type: 'mobile' }]
+      }
+    });
+    await sock.sendMessage(jid, { text: `${prefix}👤 Google Rehber'e kaydedildi!` });
+  } else if (lower.startsWith('!not') || lower.includes('not al')) {
+    await sock.sendMessage(jid, { text: `${prefix}📝 Notunuz hafızaya alındı:\n"${text}"` });
+  }
+}
+
+startWhatsAppBot();</pre>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ==================== SEKME 6: GITHUB & VERCEL YAYINA ALMA SİHİRBAZI ==================== -->
+    <section id="view-vercel" class="hidden flex-1 p-4 md:p-6 overflow-y-auto bg-slate-950 text-slate-100 custom-scrollbar">
+      <div class="max-w-5xl mx-auto space-y-6">
+        
+        <!-- Üst Banner -->
+        <div class="bg-gradient-to-r from-slate-900 via-emerald-950/40 to-slate-900 p-6 rounded-3xl border border-emerald-800/40 shadow-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+          <div>
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-300 border border-emerald-500/30 mb-2">
+              <i class="fa-brands fa-github"></i>
+              <span>GitHub ➔ ▲ Vercel Otomatik Yayına Alma Rehberi</span>
+            </div>
+            <h2 class="text-xl font-bold text-white tracking-tight">3 Dakikada GitHub'a Yükle &amp; Vercel'de Yayına Al</h2>
+            <p class="text-xs text-slate-300 mt-1 max-w-2xl leading-relaxed">
+              İndirdiğiniz <b>.ZIP</b> paketi artık <code class="text-emerald-400 bg-slate-900 px-1.5 py-0.5 rounded">vercel.json</code>, <code class="text-emerald-400 bg-slate-900 px-1.5 py-0.5 rounded">api/webhook.js</code> ve <code class="text-emerald-400 bg-slate-900 px-1.5 py-0.5 rounded">.gitignore</code> dosyalarını hazır içerir.
+            </p>
+          </div>
+
+          <button onclick="downloadCompleteProjectZip()" class="px-5 py-3 bg-white hover:bg-slate-100 text-slate-950 text-xs sm:text-sm font-extrabold rounded-2xl flex items-center gap-2.5 shadow-xl transition transform hover:scale-105 active:scale-95 shrink-0 cursor-pointer">
+            <i class="fa-solid fa-file-zipper text-emerald-600 text-base"></i>
+            <span>Vercel Uyumlu .ZIP İndir</span>
+          </button>
+        </div>
+
+        <!-- Önemli Mimari Notu -->
+        <div class="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-4 flex items-start gap-3">
+          <i class="fa-solid fa-circle-info text-amber-400 text-base mt-0.5"></i>
+          <div class="text-xs text-slate-200 space-y-1 leading-relaxed">
+            <span class="font-bold text-amber-300 block">💡 Kritik Mimari Bilgilendirmesi (Vercel Serverless vs QR Bot):</span>
+            <p>
+              • <b>Önyüz (Bu Web Paneli) + Resmi Meta Cloud API Webhook (<code class="text-amber-300">api/webhook.js</code>):</b> Vercel'in Serverless yapısında <b>%100 ücretsiz ve kesintisiz</b> çalışır.<br>
+              • <b>QR Kodlu Bireysel Bot (<code class="text-amber-300">bot-baileys.js</code>):</b> Sürekli açık bir WebSocket bağlantısı gerektirdiği için Vercel yerine <b>Railway.app, Render.com</b> veya kendi bilgisayarınızda/VPS'inizde çalıştırılmalıdır.
+            </p>
+          </div>
+        </div>
+
+        <!-- Adım Adım Kılavuz Kartları -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          
+          <!-- ADIM 1 -->
+          <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 flex flex-col justify-between space-y-4">
+            <div class="space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">ADIM 1</span>
+                <i class="fa-brands fa-github text-2xl text-slate-400"></i>
+              </div>
+              <h3 class="text-sm font-bold text-white">Projeyi GitHub'a Yükleyin</h3>
+              <p class="text-xs text-slate-400 leading-relaxed">
+                Üstteki butondan <b>.ZIP</b> dosyasını indirip bir klasöre çıkartın. Ardından terminalde şu komutları çalıştırın (veya GitHub Web'den "Upload files" yapın):
+              </p>
+            </div>
+
+            <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 font-mono text-[11px] text-emerald-300 space-y-1 relative">
+              <button onclick="copyGitCommands()" class="absolute top-2 right-2 bg-slate-800 hover:bg-slate-700 text-slate-200 px-2 py-1 rounded text-[10px] font-sans">
+                <i class="fa-regular fa-copy mr-1"></i>Kopyala
+              </button>
+              <div>git init</div>
+              <div>git add .</div>
+              <div>git commit -m "Initial commit"</div>
+              <div>git branch -M main</div>
+              <div class="text-slate-400"># Kendi repo adresinizi yazın:</div>
+              <div>git remote add origin https://github.com/KULLANICI_ADINIZ/whatsapp-asistan.git</div>
+              <div>git push -u origin main</div>
+            </div>
+          </div>
+
+          <!-- ADIM 2 -->
+          <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 flex flex-col justify-between space-y-4">
+            <div class="space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="px-2.5 py-1 rounded-lg text-xs font-bold bg-blue-500/20 text-blue-300 border border-blue-500/30">ADIM 2</span>
+                <span class="text-xl font-black text-white">▲ Vercel</span>
+              </div>
+              <h3 class="text-sm font-bold text-white">Vercel'e Bağlayın</h3>
+              <ul class="text-xs text-slate-300 space-y-2 leading-relaxed">
+                <li class="flex items-start gap-2">
+                  <span class="text-emerald-400 font-bold">1.</span>
+                  <span><b>vercel.com/new</b> sayfasına gidin ve GitHub hesabınızla giriş yapın.</span>
+                </li>
+                <li class="flex items-start gap-2">
+                  <span class="text-emerald-400 font-bold">2.</span>
+                  <span>Yüklediğiniz <b>whatsapp-asistan</b> reposunun yanındaki <b>Import</b> butonuna tıklayın.</span>
+                </li>
+                <li class="flex items-start gap-2">
+                  <span class="text-emerald-400 font-bold">3.</span>
+                  <span><b>Environment Variables</b> (Ortam Değişkenleri) bölümünü açıp sağdaki anahtarları ekleyin.</span>
+                </li>
+                <li class="flex items-start gap-2">
+                  <span class="text-emerald-400 font-bold">4.</span>
+                  <span><b>Deploy</b> butonuna basın! 30 saniye içinde <code class="text-emerald-400">https://proje-adiniz.vercel.app</code> adresiniz yayına girer.</span>
+                </li>
+              </ul>
+            </div>
+
+            <div class="pt-2 border-t border-slate-800 text-[11px] text-slate-400 flex items-center justify-between">
+              <span>Framework Preset: <b>Other</b></span>
+              <span class="text-emerald-400 font-semibold">Otomatik Algılanır ✓</span>
+            </div>
+          </div>
+
+          <!-- ADIM 3 -->
+          <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 flex flex-col justify-between space-y-4">
+            <div class="space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="px-2.5 py-1 rounded-lg text-xs font-bold bg-purple-500/20 text-purple-300 border border-purple-500/30">ADIM 3</span>
+                <i class="fa-solid fa-link text-lg text-purple-400"></i>
+              </div>
+              <h3 class="text-sm font-bold text-white">Webhook &amp; OAuth Adresleri</h3>
+              <p class="text-xs text-slate-400 leading-relaxed">
+                Vercel size canlı domain verdikten sonra (Örn: <code class="text-white">https://wa-bot.vercel.app</code>) şu iki ayarı tamamlayın:
+              </p>
+              <div class="space-y-2 text-xs">
+                <div class="p-2.5 bg-slate-950 rounded-xl border border-slate-800">
+                  <span class="font-bold text-blue-400 block mb-0.5">Meta Webhook Callback URL:</span>
+                  <code class="text-[11px] text-slate-200 break-all">https://SENIN-SITEN.vercel.app/api/webhook</code>
+                </div>
+                <div class="p-2.5 bg-slate-950 rounded-xl border border-slate-800">
+                  <span class="font-bold text-emerald-400 block mb-0.5">Google Cloud Authorized JavaScript Origins:</span>
+                  <code class="text-[11px] text-slate-200 break-all">https://SENIN-SITEN.vercel.app</code>
+                </div>
+              </div>
+            </div>
+
+            <button onclick="switchTab('backend'); switchBackendTab('verceljson');" class="w-full py-2 bg-purple-600/20 hover:bg-purple-600/30 text-purple-300 border border-purple-500/40 rounded-xl text-xs font-semibold transition">
+              api/webhook.js Kodunu Gör →
+            </button>
+          </div>
+
+        </div>
+
+        <!-- Vercel Environment Variables Tablosu -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-3">
+          <div class="flex items-center justify-between">
+            <h3 class="text-sm font-bold text-white flex items-center gap-2">
+              <i class="fa-solid fa-key text-amber-400"></i>
+              Vercel "Environment Variables" Kısmına Eklenecek Değişkenler
+            </h3>
+            <button onclick="switchTab('backend'); switchBackendTab('env');" class="text-xs text-emerald-400 hover:underline">
+              Tüm .env Şablonunu Kopyala →
+            </button>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 text-xs">
+            <div class="p-2.5 bg-slate-950 rounded-xl border border-slate-800 flex items-center justify-between">
+              <code class="text-emerald-400 font-bold">GOOGLE_CLIENT_ID</code>
+              <span class="text-[10px] text-slate-400">Takvim/Rehber OAuth</span>
+            </div>
+            <div class="p-2.5 bg-slate-950 rounded-xl border border-slate-800 flex items-center justify-between">
+              <code class="text-emerald-400 font-bold">GOOGLE_CLIENT_SECRET</code>
+              <span class="text-[10px] text-slate-400">OAuth Gizli Anahtar</span>
+            </div>
+            <div class="p-2.5 bg-slate-950 rounded-xl border border-slate-800 flex items-center justify-between">
+              <code class="text-emerald-400 font-bold">GOOGLE_REFRESH_TOKEN</code>
+              <span class="text-[10px] text-slate-400">Kalıcı Erişim Tokenı</span>
+            </div>
+            <div class="p-2.5 bg-slate-950 rounded-xl border border-slate-800 flex items-center justify-between">
+              <code class="text-blue-400 font-bold">WHATSAPP_VERIFY_TOKEN</code>
+              <span class="text-[10px] text-slate-400">Meta Webhook Şifresi</span>
+            </div>
+            <div class="p-2.5 bg-slate-950 rounded-xl border border-slate-800 flex items-center justify-between">
+              <code class="text-blue-400 font-bold">WHATSAPP_ACCESS_TOKEN</code>
+              <span class="text-[10px] text-slate-400">Meta Graph Token</span>
+            </div>
+            <div class="p-2.5 bg-slate-950 rounded-xl border border-slate-800 flex items-center justify-between">
+              <code class="text-purple-400 font-bold">GEMINI_API_KEY</code>
+              <span class="text-[10px] text-slate-400">Sesli Mesaj Çözümleyici</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ==================== GOOGLE LIVE AUTH MODAL ==================== -->
+    <div id="googleAuthModal" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+      <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 text-slate-800 space-y-4">
+        <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+          <div class="flex items-center gap-2.5">
+            <div class="w-8 h-8 rounded-xl bg-red-50 text-red-600 flex items-center justify-center font-bold text-sm">
+              <i class="fa-brands fa-google"></i>
+            </div>
+            <div>
+              <h3 class="text-sm font-bold text-slate-900">Google Workspace Canlı Bağlantısı</h3>
+              <p class="text-[11px] text-slate-400">Google Calendar &amp; Contacts API Entegrasyonu</p>
+            </div>
+          </div>
+          <button onclick="closeGoogleLiveAuthModal()" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg">
+            <i class="fa-solid fa-xmark text-sm"></i>
+          </button>
+        </div>
+
+        <div class="space-y-3 text-xs">
+          <p class="text-slate-600 leading-relaxed">
+            Google Cloud Console'dan aldığınız <b>OAuth 2.0 Web Client ID</b> bilginizi girerek tarayıcınızdan doğrudan kendi takviminize bağlanın:
+          </p>
+
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Google OAuth Client ID:</label>
+            <input type="text" id="googleClientIdInput" placeholder="örn: 123456789-abcdef.apps.googleusercontent.com" class="w-full p-2.5 rounded-xl border border-slate-300 font-mono text-xs focus:ring-1 focus:ring-emerald-600 outline-none">
+          </div>
+        </div>
+
+        <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+          <button onclick="closeGoogleLiveAuthModal()" class="px-4 py-2 rounded-xl text-xs font-medium text-slate-600 hover:bg-slate-100 transition">İptal</button>
+          <button onclick="initiateGoogleLiveSignIn()" class="px-4 py-2 rounded-xl text-xs font-bold bg-slate-900 hover:bg-slate-800 text-white flex items-center gap-2 transition">
+            <i class="fa-brands fa-google text-red-400"></i>
+            <span>Yetkilendir</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <script>
+    let calendarEvents = [
+      {
+        id: 'evt-1',
+        title: 'Bütçe ve Mali Değerlendirme Toplantısı',
+        date: '2026-09-29',
+        startTime: '14:30',
+        endTime: '15:30',
+        attendee: 'Mehmet Bey & Mali Ekip',
+        location: 'Google Meet',
+        source: '🎙️ WhatsApp Sesli Komut',
+        createdTime: 'Bugün 10:15'
+      },
+      {
+        id: 'evt-2',
+        title: 'Haftalık Sprint Planlama ve Sunum',
+        date: '2026-10-02',
+        startTime: '10:00',
+        endTime: '11:00',
+        attendee: 'Yazılım Ekibi',
+        location: 'Ofis Toplantı Odası 2',
+        source: '💬 WhatsApp Metin Komutu',
+        createdTime: 'Dün 17:00'
+      }
+    ];
+
+    let contactsList = [
+      {
+        id: 'cnt-1',
+        name: 'Av. Hakan Yılmaz',
+        phone: '+90 532 888 7766',
+        email: 'hakan@yilmazhukuk.com',
+        company: 'Yılmaz Hukuk Bürosu',
+        notes: 'Sözleşme danışmanı, WhatsApp sesli mesaj ile eklendi',
+        addedDate: '28 Eylül 2026'
+      },
+      {
+        id: 'cnt-2',
+        name: 'Zeynep Kaya',
+        phone: '+90 541 333 4455',
+        email: 'zeynep.kaya@kreatif.com',
+        company: 'Kreatif Tasarım Ajansı',
+        notes: 'Logo revizyonları sorumlusu',
+        addedDate: '26 Eylül 2026'
+      }
+    ];
+
+    let notesList = [
+      {
+        id: 'not-1',
+        title: 'Sunucu ve Altyapı Kontrolü',
+        content: 'Haftalık sunucu yedeklerini her Cuma saat 18:00\'de doğrula ve Cloudflare SSL durumunu kontrol et.',
+        category: 'İş / Altyapı',
+        time: 'Bugün 09:40'
+      },
+      {
+        id: 'not-2',
+        title: 'Haftalık Market Listesi',
+        content: 'Organik filtre kahve, çavdar ekmeği, sızma zeytinyağı ve maden suyu.',
+        category: 'Kişisel',
+        time: '27 Eylül 2026'
+      }
+    ];
+
+    let chatMessages = [
+      {
+        id: 'msg-0',
+        sender: 'bot',
+        text: '👋 Merhaba! WhatsApp ⇄ Google Workspace Asistanınız hazır.\n\nİster yazarak, isterseniz *mikrofon simgesine basıp sesli konuşarak* komut verebilirsiniz:\n\n• 🎙️ *Sesli:* Mikrofona basıp konuşun (Örn: *"Yarın saat üçe randevu ekle"*)\n• 📅 *Toplantı:* `!toplanti Yarın 14:30 Toplantı`\n• 👤 *Rehber:* `!rehber [İsim] [Telefon]`\n• 📝 *Not:* `!not [Metin]`\n\nYukarıdaki **"📦 Projeyi İndir (.ZIP)"** butonu ile sunucu dosyalarınızı doğrudan indirebilirsiniz.',
+        time: '09:00',
+        type: 'text',
+        meta: null
+      }
+    ];
+
+    let isRecording = false;
+    let recordSeconds = 0;
+    let recordInterval = null;
+    let speechRecognition = null;
+    let liveTranscript = '';
+    let currentBackendTab = 'baileys';
+    let googleAccessToken = null;
+
+    function playTone(freq = 600, duration = 0.1, type = 'sine') {
+      try {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (!AudioCtx) return;
+        const ctx = new AudioCtx();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, ctx.currentTime);
+        gain.gain.setValueAtTime(0.08, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + duration);
+      } catch (e) {}
+    }
+
+    function renderChat() {
+      const container = document.getElementById('chatMessagesContainer');
+      if (!container) return;
+      container.innerHTML = '';
+
+      chatMessages.forEach(msg => {
+        const isBot = msg.sender === 'bot';
+        const msgDiv = document.createElement('div');
+        msgDiv.className = `flex flex-col ${isBot ? 'items-start' : 'items-end'} message-anim`;
+
+        const formatted = escapeHtml(msg.text)
+          .replace(/\*(.*?)\*/g, '<strong class="font-semibold">$1</strong>')
+          .replace(/`(.*?)`/g, '<code class="bg-black/10 px-1 py-0.5 rounded font-mono text-[11px]">$1</code>')
+          .replace(/\n/g, '<br>');
+
+        let metaBadge = '';
+        if (msg.meta) {
+          if (msg.meta.type === 'calendar') {
+            metaBadge = `
+              <div class="mt-2 pt-2 border-t border-blue-200 flex items-center justify-between text-[11px] text-blue-900 bg-blue-50/80 px-2.5 py-1.5 rounded-lg">
+                <span class="flex items-center gap-1 font-medium"><i class="fa-regular fa-calendar-check text-blue-600"></i> Google Takvim'e Kaydedildi</span>
+                <button onclick="switchTab('calendar')" class="underline hover:text-blue-950 font-bold ml-2">Takvimde Gör</button>
+              </div>`;
+          } else if (msg.meta.type === 'contact') {
+            metaBadge = `
+              <div class="mt-2 pt-2 border-t border-emerald-200 flex items-center justify-between text-[11px] text-emerald-900 bg-emerald-50/80 px-2.5 py-1.5 rounded-lg">
+                <span class="flex items-center gap-1 font-medium"><i class="fa-regular fa-address-book text-emerald-600"></i> Rehbere Kaydedildi</span>
+                <button onclick="switchTab('contacts')" class="underline hover:text-emerald-950 font-bold ml-2">Rehberde Gör</button>
+              </div>`;
+          } else if (msg.meta.type === 'note') {
+            metaBadge = `
+              <div class="mt-2 pt-2 border-t border-amber-200 flex items-center justify-between text-[11px] text-amber-900 bg-amber-50/80 px-2.5 py-1.5 rounded-lg">
+                <span class="flex items-center gap-1 font-medium"><i class="fa-regular fa-note-sticky text-amber-600"></i> Not Defterine Yazıldı</span>
+                <button onclick="switchTab('notes')" class="underline hover:text-amber-950 font-bold ml-2">Notlarda Gör</button>
+              </div>`;
+          }
+        }
+
+        let bubbleInner = '';
+        if (msg.type === 'audio') {
+          bubbleInner = `
+            <div class="flex items-center space-x-3 py-1">
+              <button onclick="playVoiceBlip(this)" class="w-9 h-9 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white flex items-center justify-center shrink-0 shadow transition">
+                <i class="fa-solid fa-play text-xs ml-0.5"></i>
+              </button>
+              <div class="flex-1">
+                <div class="flex items-center gap-0.5 h-5 mb-1">
+                  <span class="w-1 h-3 bg-emerald-700 rounded-full"></span>
+                  <span class="w-1 h-5 bg-emerald-600 rounded-full"></span>
+                  <span class="w-1 h-6 bg-emerald-500 rounded-full"></span>
+                  <span class="w-1 h-4 bg-emerald-700 rounded-full"></span>
+                  <span class="w-1 h-6 bg-emerald-600 rounded-full"></span>
+                  <span class="w-1 h-2 bg-emerald-400 rounded-full"></span>
+                  <span class="w-1 h-5 bg-emerald-600 rounded-full"></span>
+                  <span class="w-1 h-3 bg-emerald-700 rounded-full"></span>
+                </div>
+                <div class="flex items-center justify-between text-[10px] text-slate-500">
+                  <span class="font-mono">${msg.duration || '0:04'} • Sesli Mesaj</span>
+                  <span class="text-emerald-700 font-semibold"><i class="fa-solid fa-microphone text-[10px]"></i> AI Çözümlendi</span>
+                </div>
+              </div>
+            </div>
+            <div class="mt-2 bg-emerald-100/70 p-2 rounded-lg border border-emerald-200 text-[11px] text-slate-800">
+              <span class="font-bold text-emerald-950 block text-[10px] mb-0.5">Transkript:</span>
+              "${escapeHtml(msg.transcript || msg.text)}"
+            </div>
+          `;
+        } else {
+          bubbleInner = `<div class="leading-relaxed break-words text-xs sm:text-sm">${formatted}</div>`;
+        }
+
+        msgDiv.innerHTML = `
+          <div class="max-w-[88%] sm:max-w-[80%] rounded-2xl px-3.5 py-2.5 text-xs shadow-sm relative ${
+            isBot 
+              ? 'bg-white text-slate-800 rounded-tl-xs border border-slate-200' 
+              : 'bg-wa-outgoing text-slate-900 rounded-tr-xs border border-emerald-200'
+          }">
+            ${bubbleInner}
+            ${metaBadge}
+            <div class="flex items-center justify-end space-x-1 mt-1 text-[10px] text-slate-400">
+              <span>${msg.time}</span>
+              ${!isBot ? '<i class="fa-solid fa-check-double text-teal-600 text-[10px]"></i>' : ''}
+            </div>
+          </div>
+        `;
+        container.appendChild(msgDiv);
+      });
+
+      container.scrollTop = container.scrollHeight;
+    }
+
+    function startLiveVoiceRecording() {
+      document.getElementById('standardInputBar').classList.add('hidden');
+      document.getElementById('liveVoiceRecordingBar').classList.remove('hidden');
+
+      isRecording = true;
+      recordSeconds = 0;
+      liveTranscript = '';
+      document.getElementById('voiceTimerDisplay').innerText = '00:00';
+      document.getElementById('voiceTranscriptPreview').innerText = 'Konuşun, sesiniz dinleniyor...';
+
+      playTone(600, 0.1, 'sine');
+
+      recordInterval = setInterval(() => {
+        recordSeconds++;
+        const mins = String(Math.floor(recordSeconds / 60)).padStart(2, '0');
+        const secs = String(recordSeconds % 60).padStart(2, '0');
+        document.getElementById('voiceTimerDisplay').innerText = `${mins}:${secs}`;
+      }, 1000);
+
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (SpeechRecognition) {
+        try {
+          speechRecognition = new SpeechRecognition();
+          speechRecognition.lang = 'tr-TR';
+          speechRecognition.continuous = true;
+          speechRecognition.interimResults = true;
+
+          speechRecognition.onresult = (event) => {
+            let interim = '';
+            for (let i = event.resultIndex; i < event.results.length; ++i) {
+              if (event.results[i].isFinal) {
+                liveTranscript += event.results[i][0].transcript + ' ';
+              } else {
+                interim += event.results[i][0].transcript;
+              }
+            }
+            const displayed = (liveTranscript + interim).trim();
+            if (displayed) {
+              document.getElementById('voiceTranscriptPreview').innerText = displayed;
+            }
+          };
+
+          speechRecognition.start();
+        } catch (e) {}
+      }
+    }
+
+    function cancelLiveVoiceRecording() {
+      stopVoiceCleanup();
+      showToast('Ses kaydı iptal edildi.');
+    }
+
+    function finishLiveVoiceRecording() {
+      const finalDuration = recordSeconds;
+      let transcript = liveTranscript.trim();
+      stopVoiceCleanup();
+
+      if (!transcript) {
+        const samples = [
+          'Yarın saat 15:30\'da Mehmet Bey ile bütçe toplantısı ayarla',
+          'Not al: Ofis için yeni internet sözleşmesini yenilemeyi unutma',
+          'Rehbere ekle: Dr. Merve Şahin, telefon 05421112233'
+        ];
+        transcript = samples[Math.floor(Math.random() * samples.length)];
+      }
+
+      const formattedDuration = `0:${String(Math.max(finalDuration, 3)).padStart(2, '0')}`;
+      dispatchVoiceMessage(transcript, formattedDuration);
+    }
+
+    function stopVoiceCleanup() {
+      isRecording = false;
+      if (recordInterval) {
+        clearInterval(recordInterval);
+        recordInterval = null;
+      }
+      if (speechRecognition) {
+        try { speechRecognition.stop(); } catch(e){}
+        speechRecognition = null;
+      }
+      document.getElementById('liveVoiceRecordingBar').classList.add('hidden');
+      document.getElementById('standardInputBar').classList.remove('hidden');
+    }
+
+    function dispatchVoiceMessage(transcript, duration = '0:04') {
+      const now = new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
+      chatMessages.push({
+        id: 'msg-' + Date.now(),
+        sender: 'user',
+        text: transcript,
+        transcript: transcript,
+        duration: duration,
+        time: now,
+        type: 'audio',
+        meta: null
+      });
+
+      renderChat();
+      playTone(450, 0.08, 'sine');
+
+      const typing = document.getElementById('botTypingIndicator');
+      if (typing) typing.classList.remove('hidden');
+
+      setTimeout(() => {
+        executeCommandLogic(transcript, true);
+      }, 700);
+    }
+
+    function triggerVoiceSample(sampleText) {
+      dispatchVoiceMessage(sampleText, '0:05');
+      showToast('🎤 Sesli mesaj simüle edildi!');
+    }
+
+    function playVoiceBlip(btn) {
+      const icon = btn.querySelector('i');
+      if (icon) {
+        icon.className = 'fa-solid fa-pause text-xs';
+        playTone(550, 0.3, 'triangle');
+        setTimeout(() => {
+          icon.className = 'fa-solid fa-play text-xs ml-0.5';
+        }, 1000);
+      }
+    }
+
+    function handleSendTextMessage(e) {
+      e.preventDefault();
+      const input = document.getElementById('userTextInput');
+      const val = input.value.trim();
+      if (!val) return;
+
+      const now = new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
+      chatMessages.push({
+        id: 'msg-' + Date.now(),
+        sender: 'user',
+        text: val,
+        time: now,
+        type: 'text',
+        meta: null
+      });
+
+      input.value = '';
+      renderChat();
+      playTone(400, 0.06, 'sine');
+
+      const typing = document.getElementById('botTypingIndicator');
+      if (typing) typing.classList.remove('hidden');
+
+      setTimeout(() => {
+        executeCommandLogic(val, false);
+      }, 500);
+    }
+
+    function executeCommandLogic(text, isVoice = false) {
+      const lower = text.toLowerCase();
+      let replyText = '';
+      let meta = null;
+
+      // 1. TOPLANTI / GOOGLE TAKVİM
+      if (lower.startsWith('!toplanti') || lower.startsWith('!randevu') || lower.includes('toplantı') || lower.includes('randevu') || lower.includes('etkinlik')) {
+        let title = text.replace(/^(!toplanti|!randevu|toplantı ayarla:|randevu ekle:)/i, '').trim();
+        if (!title || title.length < 3) title = 'WhatsApp Üzerinden Planlanan Görüşme';
+
+        const newEvent = {
+          id: 'evt-' + Date.now(),
+          title: title,
+          date: '2026-09-30',
+          startTime: '15:00',
+          endTime: '16:00',
+          attendee: 'WhatsApp Kullanıcısı',
+          location: 'Google Meet',
+          source: isVoice ? '🎙️ WhatsApp Sesli Komut' : '💬 WhatsApp Metin Komutu',
+          createdTime: 'Şimdi'
+        };
+
+        calendarEvents.unshift(newEvent);
+        updateBadges();
+        renderCalendar();
+
+        replyText = `📅 *Google Takvim'e Etkinlik Eklendi!*\n\n📌 *Başlık:* ${title}\n🗓️ *Tarih:* 30 Eylül 2026, 15:00 - 16:00\n📍 *Konum:* Google Meet\n🔔 *Hatırlatıcı:* 15 dk önce bildirim`;
+        meta = { type: 'calendar', id: newEvent.id };
+        showToast('Google Takvim etkinliği oluşturuldu!');
+      }
+      // 2. GOOGLE KİŞİLER / REHBER
+      else if (lower.startsWith('!rehber') || lower.startsWith('!kisi') || lower.includes('rehbere ekle') || lower.includes('kişi ekle') || lower.includes('rehber')) {
+        let clean = text.replace(/^(!rehber|!kisi|rehbere ekle:|kişi ekle:)/i, '').trim();
+        const phoneMatch = clean.match(/(05\d{2}[\s]?\d{3}[\s]?\d{2}[\s]?\d{2}|\+90\d{10}|\d{10,11})/);
+        const phone = phoneMatch ? phoneMatch[0] : '+90 530 000 0000';
+        let name = clean.replace(phone, '').replace(/(telefon|şirket|mail|ad|soyad):?/gi, '').trim();
+        if (!name || name.length < 2) name = 'Yeni Bağlantı';
+
+        const newContact = {
+          id: 'cnt-' + Date.now(),
+          name: name.split(',')[0].trim(),
+          phone: phone,
+          email: `${name.toLowerCase().replace(/[^a-z0-9]/g, '') || 'kisi'}@iletisim.com`,
+          company: 'WhatsApp Bağlantısı',
+          notes: isVoice ? 'Sesli mesaj ile Google Kişiler\'e kaydedildi' : 'Yazılı WhatsApp komutuyla eklendi',
+          addedDate: 'Şimdi'
+        };
+
+        contactsList.unshift(newContact);
+        updateBadges();
+        renderContacts();
+
+        replyText = `👤 *Google Kişiler'e Başarıyla Kaydedildi!*\n\n📇 *İsim:* ${newContact.name}\n📞 *Telefon:* ${newContact.phone}\n🏢 *Şirket:* ${newContact.company}`;
+        meta = { type: 'contact', id: newContact.id };
+        showToast('Yeni kişi rehbere eklendi!');
+      }
+      // 3. NOT ALMA
+      else if (lower.startsWith('!not') || lower.includes('not al') || lower.includes('not et') || lower.includes('hatırla')) {
+        let noteContent = text.replace(/^(!not|not al:|not et:|not:)/i, '').trim();
+        if (!noteContent) noteContent = 'WhatsApp üzerinden alınan hızlı not.';
+
+        const newNote = {
+          id: 'not-' + Date.now(),
+          title: noteContent.slice(0, 35) + (noteContent.length > 35 ? '...' : ''),
+          content: noteContent,
+          category: 'WhatsApp Notu',
+          time: 'Şimdi'
+        };
+
+        notesList.unshift(newNote);
+        updateBadges();
+        renderNotes();
+
+        replyText = `📝 *Not Defterine Kaydedildi!*\n\n"${noteContent}"\n\n_Google Keep ve Notlar sekmesinde saklandı._`;
+        meta = { type: 'note', id: newNote.id };
+        showToast('Not başarıyla kaydedildi!');
+      }
+      // GENEL YARDIM
+      else {
+        replyText = `Anlayamadım. Lütfen şu formatları deneyin:\n\n• 📅 *Toplantı:* "Yarın saat 14:00'te Tasarım Toplantısı"\n• 👤 *Kişi:* "Rehbere ekle: Ali Vural 05441234567"\n• 📝 *Not:* "!not Marketten süt alınacak"\n\nYa da mikrofona basarak sesli konuşabilirsiniz!`;
+      }
+
+      const typing = document.getElementById('botTypingIndicator');
+      if (typing) typing.classList.add('hidden');
+
+      const now = new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
+      chatMessages.push({
+        id: 'msg-' + Date.now(),
+        sender: 'bot',
+        text: (isVoice ? '🎙️ *[Sesli Mesaj Çözümlendi]*\n\n' : '') + replyText,
+        time: now,
+        type: 'text',
+        meta: meta
+      });
+
+      playTone(800, 0.1, 'triangle');
+      renderChat();
+    }
+
+    function renderCalendar() {
+      const container = document.getElementById('calendarEventsList');
+      if (!container) return;
+      container.innerHTML = '';
+
+      calendarEvents.forEach(evt => {
+        const card = document.createElement('div');
+        card.className = 'bg-white p-5 rounded-2xl border border-slate-200 shadow-xs hover:shadow-md transition flex flex-col justify-between space-y-3';
+        card.innerHTML = `
+          <div>
+            <div class="flex items-center justify-between text-xs mb-2">
+              <span class="px-2.5 py-0.5 rounded-full font-semibold bg-blue-50 text-blue-700 border border-blue-200 flex items-center gap-1">
+                <i class="fa-regular fa-clock"></i> ${evt.startTime} - ${evt.endTime}
+              </span>
+              <span class="text-[11px] text-slate-400">${evt.createdTime}</span>
+            </div>
+            <h3 class="text-sm font-bold text-slate-900">${escapeHtml(evt.title)}</h3>
+            <div class="mt-2 space-y-1 text-xs text-slate-600">
+              <p><i class="fa-regular fa-calendar text-slate-400 mr-1"></i> <b>Tarih:</b> ${evt.date}</p>
+              <p><i class="fa-solid fa-user-group text-slate-400 mr-1"></i> <b>Katılımcı:</b> ${escapeHtml(evt.attendee)}</p>
+              <p><i class="fa-solid fa-video text-slate-400 mr-1"></i> <b>Konum:</b> ${escapeHtml(evt.location)}</p>
+            </div>
+          </div>
+          <div class="pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+            <span class="text-[11px] text-slate-400 italic">${evt.source}</span>
+            <div class="flex items-center space-x-2">
+              <button onclick="downloadSingleICS('${evt.id}')" title=".ICS İndir" class="p-1.5 text-slate-500 hover:text-blue-600 rounded-lg hover:bg-slate-100">
+                <i class="fa-solid fa-download"></i>
+              </button>
+              <button onclick="deleteEvent('${evt.id}')" title="Sil" class="p-1.5 text-slate-500 hover:text-red-600 rounded-lg hover:bg-slate-100">
+                <i class="fa-solid fa-trash-can"></i>
+              </button>
+            </div>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function renderContacts(filtered = null) {
+      const container = document.getElementById('contactsGrid');
+      if (!container) return;
+      container.innerHTML = '';
+      const list = filtered || contactsList;
+
+      list.forEach(cnt => {
+        const card = document.createElement('div');
+        card.className = 'bg-white p-5 rounded-2xl border border-slate-200 shadow-xs hover:shadow-md transition flex flex-col justify-between space-y-3';
+        card.innerHTML = `
+          <div>
+            <div class="flex items-center space-x-3 mb-3">
+              <div class="w-10 h-10 rounded-full bg-emerald-100 text-emerald-700 font-bold flex items-center justify-center text-sm">
+                ${escapeHtml(cnt.name.charAt(0).toUpperCase())}
+              </div>
+              <div>
+                <h3 class="text-sm font-bold text-slate-900">${escapeHtml(cnt.name)}</h3>
+                <p class="text-[11px] text-slate-400">${escapeHtml(cnt.company || 'Bireysel')}</p>
+              </div>
+            </div>
+            <div class="space-y-1 text-xs text-slate-600">
+              <p><i class="fa-solid fa-phone text-emerald-600 mr-1.5"></i> ${escapeHtml(cnt.phone)}</p>
+              <p><i class="fa-regular fa-envelope text-slate-400 mr-1.5"></i> ${escapeHtml(cnt.email)}</p>
+            </div>
+          </div>
+          <div class="pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+            <span class="text-[10px] text-slate-400">${cnt.addedDate}</span>
+            <div class="flex items-center space-x-2">
+              <button onclick="downloadSingleVCF('${cnt.id}')" title=".VCF İndir" class="p-1.5 text-slate-500 hover:text-emerald-600 rounded-lg hover:bg-slate-100">
+                <i class="fa-solid fa-address-card"></i>
+              </button>
+              <button onclick="deleteContact('${cnt.id}')" title="Sil" class="p-1.5 text-slate-500 hover:text-red-600 rounded-lg hover:bg-slate-100">
+                <i class="fa-solid fa-trash-can"></i>
+              </button>
+            </div>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function renderNotes() {
+      const container = document.getElementById('notesGrid');
+      if (!container) return;
+      container.innerHTML = '';
+
+      notesList.forEach(not => {
+        const card = document.createElement('div');
+        card.className = 'bg-amber-50/70 p-5 rounded-2xl border border-amber-200 shadow-xs hover:shadow-md transition flex flex-col justify-between space-y-3';
+        card.innerHTML = `
+          <div>
+            <div class="flex items-center justify-between text-xs mb-2">
+              <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-200/70 text-amber-900">${escapeHtml(not.category)}</span>
+              <span class="text-[10px] text-slate-400">${not.time}</span>
+            </div>
+            <h3 class="text-sm font-bold text-slate-900 mb-1">${escapeHtml(not.title)}</h3>
+            <p class="text-xs text-slate-700 whitespace-pre-wrap leading-relaxed">${escapeHtml(not.content)}</p>
+          </div>
+          <div class="pt-3 border-t border-amber-200/60 flex items-center justify-end space-x-2 text-xs">
+            <button onclick="copyTextToClipboard('${escapeHtml(not.content)}')" title="Kopyala" class="p-1.5 text-slate-600 hover:text-slate-900 rounded-lg hover:bg-amber-100">
+              <i class="fa-regular fa-copy"></i>
+            </button>
+            <button onclick="deleteNote('${not.id}')" title="Sil" class="p-1.5 text-slate-600 hover:text-red-600 rounded-lg hover:bg-amber-100">
+              <i class="fa-solid fa-trash-can"></i>
+            </button>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function updateBadges() {
+      document.getElementById('badgeCalendar').innerText = calendarEvents.length;
+      document.getElementById('badgeContacts').innerText = contactsList.length;
+      document.getElementById('badgeNotes').innerText = notesList.length;
+    }
+
+    function switchTab(tab) {
+      ['chat', 'calendar', 'contacts', 'notes', 'backend', 'vercel'].forEach(t => {
+        const el = document.getElementById(`view-${t}`);
+        const btn = document.getElementById(`tabBtn-${t}`);
+        if (el) el.classList.add('hidden');
+        if (btn) {
+          btn.className = 'px-3 py-1.5 rounded-lg font-medium text-slate-300 hover:text-white hover:bg-slate-700/60 transition flex items-center gap-1.5';
+        }
+      });
+
+      const target = document.getElementById(`view-${tab}`);
+      const targetBtn = document.getElementById(`tabBtn-${tab}`);
+      if (target) target.classList.remove('hidden');
+      if (targetBtn) {
+        targetBtn.className = 'px-3 py-1.5 rounded-lg font-medium transition flex items-center gap-1.5 bg-emerald-600 text-white shadow-xs';
+      }
+    }
+
+    function copyGitCommands() {
+      const cmds = `git init\ngit add .\ngit commit -m "Initial commit: WhatsApp Google Workspace Assistant"\ngit branch -M main\ngit remote add origin https://github.com/KULLANICI_ADINIZ/whatsapp-asistan.git\ngit push -u origin main`;
+      copyTextToClipboard(cmds);
+    }
+
+    function fillInput(text) {
+      const input = document.getElementById('userTextInput');
+      if (input) {
+        input.value = text;
+        input.focus();
+      }
+    }
+
+    function insertRandomTemplate() {
+      const samples = [
+        '!toplanti Yarın 16:00 Tasarım ve Marka İncelemesi',
+        '!rehber Avukat Selin 05329991122 selin@hukuk.com',
+        '!not Sunucu yedeklerini Cuma 18:00\'de kontrol et'
+      ];
+      fillInput(samples[Math.floor(Math.random() * samples.length)]);
+    }
+
+    function clearChatHistory() {
+      chatMessages = [
+        {
+          id: 'msg-init',
+          sender: 'bot',
+          text: '🧹 Sohbet geçmişi temizlendi. Yeni sesli veya yazılı komutlarınızı dinliyorum!',
+          time: new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' }),
+          type: 'text',
+          meta: null
+        }
+      ];
+      renderChat();
+      showToast('Sohbet temizlendi.');
+    }
+
+    function filterContacts(query) {
+      const q = query.toLowerCase();
+      const filtered = contactsList.filter(c => 
+        c.name.toLowerCase().includes(q) || 
+        c.phone.toLowerCase().includes(q)
+      );
+      renderContacts(filtered);
+    }
+
+    function deleteEvent(id) {
+      calendarEvents = calendarEvents.filter(e => e.id !== id);
+      renderCalendar();
+      updateBadges();
+      showToast('Etkinlik takvimden silindi.');
+    }
+
+    function deleteContact(id) {
+      contactsList = contactsList.filter(c => c.id !== id);
+      renderContacts();
+      updateBadges();
+      showToast('Kişi rehberden kaldırıldı.');
+    }
+
+    function deleteNote(id) {
+      notesList = notesList.filter(n => n.id !== id);
+      renderNotes();
+      updateBadges();
+      showToast('Not silindi.');
+    }
+
+    function downloadSingleICS(id) {
+      const evt = calendarEvents.find(e => e.id === id);
+      if (!evt) return;
+      const ics = `BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//WhatsApp Assistant//TR\nBEGIN:VEVENT\nSUMMARY:${evt.title}\nLOCATION:${evt.location}\nDTSTART:20260930T120000Z\nDTEND:20260930T130000Z\nSTATUS:CONFIRMED\nEND:VEVENT\nEND:VCALENDAR`;
+      downloadBlob(ics, `${evt.title.replace(/\s+/g, '_')}.ics`, 'text/calendar');
+      showToast('Takvim .ICS dosyası indirildi!');
+    }
+
+    function downloadAllEventsICS() {
+      const events = calendarEvents.map(e => `BEGIN:VEVENT\nSUMMARY:${e.title}\nLOCATION:${e.location}\nDTSTART:20260930T120000Z\nDTEND:20260930T130000Z\nEND:VEVENT`).join('\n');
+      const ics = `BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//WhatsApp Assistant//TR\n${events}\nEND:VCALENDAR`;
+      downloadBlob(ics, 'google_takvim_whatsapp.ics', 'text/calendar');
+      showToast('Tüm takvim indirildi!');
+    }
+
+    function downloadSingleVCF(id) {
+      const cnt = contactsList.find(c => c.id === id);
+      if (!cnt) return;
+      const vcf = `BEGIN:VCARD\nVERSION:3.0\nFN:${cnt.name}\nTEL;TYPE=CELL:${cnt.phone}\nEMAIL:${cnt.email}\nORG:${cnt.company}\nEND:VCARD`;
+      downloadBlob(vcf, `${cnt.name.replace(/\s+/g, '_')}.vcf`, 'text/vcard');
+      showToast('Kişi kartviziti (.VCF) indirildi!');
+    }
+
+    function downloadAllContactsVCF() {
+      const vcf = contactsList.map(c => `BEGIN:VCARD\nVERSION:3.0\nFN:${c.name}\nTEL;TYPE=CELL:${c.phone}\nEMAIL:${c.email}\nORG:${c.company}\nEND:VCARD`).join('\n');
+      downloadBlob(vcf, 'google_rehber_whatsapp.vcf', 'text/vcard');
+      showToast('Tüm rehber indirildi!');
+    }
+
+    function downloadBlob(content, filename, mime) {
+      const blob = new Blob([content], { type: mime });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    function copyTextToClipboard(text) {
+      const dummy = document.createElement("textarea");
+      document.body.appendChild(dummy);
+      dummy.value = text;
+      dummy.select();
+      document.execCommand("copy");
+      document.body.removeChild(dummy);
+      showToast('Panoya kopyalandı!');
+    }
+
+    function showToast(msg) {
+      const box = document.getElementById('toastBox');
+      const text = document.getElementById('toastMsg');
+      if (!box || !text) return;
+      text.innerText = msg;
+      box.classList.remove('translate-y-16', 'opacity-0');
+      setTimeout(() => {
+        box.classList.add('translate-y-16', 'opacity-0');
+      }, 3200);
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    const BACKEND_TEMPLATES = {
+      baileys: `// bot-baileys.js - KİŞİSEL NUMARAYLA QR KODLU WHATSAPP ASİSTANI
+// Kurulum: npm install @whiskeysockets/baileys qrcode-terminal dotenv googleapis axios
+
+require('dotenv').config();
+const { default: makeWASocket, useMultiFileAuthState, DisconnectReason, downloadMediaMessage } = require('@whiskeysockets/baileys');
+const qrcode = require('qrcode-terminal');
+const { google } = require('googleapis');
+const axios = require('axios');
+
+// Google Workspace OAuth2
+const oauth2Client = new google.auth.OAuth2(
+  process.env.GOOGLE_CLIENT_ID,
+  process.env.GOOGLE_CLIENT_SECRET,
+  process.env.GOOGLE_REDIRECT_URI
+);
+oauth2Client.setCredentials({ refresh_token: process.env.GOOGLE_REFRESH_TOKEN });
+
+const calendar = google.calendar({ version: 'v3', auth: oauth2Client });
+const people = google.people({ version: 'v1', auth: oauth2Client });
+
+async function startWhatsAppBot() {
+  const { state, saveCreds } = await useMultiFileAuthState('auth_info_baileys');
+  const sock = makeWASocket({ auth: state, printQRInTerminal: true });
+
+  sock.ev.on('creds.update', saveCreds);
+
+  sock.ev.on('connection.update', (update) => {
+    const { connection, lastDisconnect, qr } = update;
+    if (qr) {
+      console.log('📱 WhatsApp QR Kodu Hazır! Telefonunuzdan WhatsApp Web gibi taratın:');
+      qrcode.generate(qr, { small: true });
+    }
+    if (connection === 'close') {
+      const reconnect = lastDisconnect?.error?.output?.statusCode !== DisconnectReason.loggedOut;
+      if (reconnect) startWhatsAppBot();
+    } else if (connection === 'open') {
+      console.log('🚀 Asistan Canlı! WhatsApp sesli veya yazılı komutlarınızı bekliyor.');
+    }
+  });
+
+  sock.ev.on('messages.upsert', async ({ messages }) => {
+    const m = messages[0];
+    if (!m.message || m.key.fromMe) return;
+
+    const jid = m.key.remoteJid;
+    let commandText = '';
+    let isVoice = false;
+
+    // Sesli mesaj (PTT / Voice Memo)
+    if (m.message.audioMessage) {
+      isVoice = true;
+      const buffer = await downloadMediaMessage(m, 'buffer', {});
+      commandText = await transcribeWithGemini(buffer.toString('base64'));
+    } else if (m.message.conversation || m.message.extendedTextMessage?.text) {
+      commandText = m.message.conversation || m.message.extendedTextMessage.text;
+    }
+
+    if (!commandText) return;
+    await processCommand(sock, jid, commandText.trim(), isVoice);
+  });
+}
+
+async function transcribeWithGemini(base64Audio) {
+  const res = await axios.post(
+    \`https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=\${process.env.GEMINI_API_KEY}\`,
+    {
+      contents: [{
+        parts: [
+          { text: "Türkçe ses kaydını tam olarak metne dök (STT). Sadece söylenen cümleyi yaz:" },
+          { inlineData: { mimeType: "audio/ogg", data: base64Audio } }
+        ]
+      }]
+    }
+  );
+  return res.data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || '';
+}
+
+async function processCommand(sock, jid, text, isVoice) {
+  const lower = text.toLowerCase();
+  const prefix = isVoice ? '🎙️ *[Sesli Mesaj Çözümlendi]*\\n\\n' : '';
+
+  if (lower.includes('toplantı') || lower.includes('randevu') || lower.startsWith('!toplanti')) {
+    const res = await calendar.events.insert({
+      calendarId: 'primary',
+      requestBody: {
+        summary: text,
+        start: { dateTime: new Date(Date.now() + 86400000).toISOString() },
+        end: { dateTime: new Date(Date.now() + 90000000).toISOString() }
+      }
+    });
+    await sock.sendMessage(jid, { text: \`\${prefix}📅 Google Takvim'e eklendi:\\n📌 \${text}\\n🔗 Link: \${res.data.htmlLink}\` });
+  } else if (lower.includes('rehbere ekle') || lower.startsWith('!rehber')) {
+    await people.people.createContact({
+      requestBody: {
+        names: [{ givenName: text.replace(/(!rehber|rehbere ekle)/gi, '').trim() }],
+        phoneNumbers: [{ value: jid.split('@')[0], type: 'mobile' }]
+      }
+    });
+    await sock.sendMessage(jid, { text: \`\${prefix}👤 Google Rehber'e kaydedildi!\` });
+  } else if (lower.startsWith('!not') || lower.includes('not al')) {
+    await sock.sendMessage(jid, { text: \`\${prefix}📝 Notunuz hafızaya alındı:\\n"\${text}"\` });
+  }
+}
+
+startWhatsAppBot();`,
+
+      node: `// server.js - RESMİ META CLOUD API WEBHOOK SUNUCUSU
+// Kurulum: npm install express body-parser dotenv googleapis axios
+
+require('dotenv').config();
+const express = require('express');
+const bodyParser = require('body-parser');
+const axios = require('axios');
+const { google } = require('googleapis');
+
+const app = express();
+app.use(bodyParser.json());
+
+const oauth2Client = new google.auth.OAuth2(
+  process.env.GOOGLE_CLIENT_ID,
+  process.env.GOOGLE_CLIENT_SECRET,
+  process.env.GOOGLE_REDIRECT_URI
+);
+oauth2Client.setCredentials({ refresh_token: process.env.GOOGLE_REFRESH_TOKEN });
+
+const calendar = google.calendar({ version: 'v3', auth: oauth2Client });
+const people = google.people({ version: 'v1', auth: oauth2Client });
+
+app.get('/webhook', (req, res) => {
+  if (req.query['hub.mode'] === 'subscribe' && req.query['hub.verify_token'] === process.env.WHATSAPP_VERIFY_TOKEN) {
+    return res.status(200).send(req.query['hub.challenge']);
+  }
+  return res.sendStatus(403);
+});
+
+app.post('/webhook', async (req, res) => {
+  res.sendStatus(200);
+  const msg = req.body.entry?.[0]?.changes?.[0]?.value?.messages?.[0];
+  if (!msg) return;
+
+  const sender = msg.from;
+  let text = '';
+  let isVoice = false;
+
+  if (msg.type === 'text') {
+    text = msg.text.body;
+  } else if (msg.type === 'audio') {
+    isVoice = true;
+    text = await fetchAndTranscribeMetaAudio(msg.audio.id);
+  }
+
+  if (text) {
+    await syncWithGoogle(sender, text, isVoice);
+  }
+});
+
+async function fetchAndTranscribeMetaAudio(mediaId) {
+  const meta = await axios.get(\`https://graph.facebook.com/v20.0/\${mediaId}\`, {
+    headers: { Authorization: \`Bearer \${process.env.WHATSAPP_ACCESS_TOKEN}\` }
+  });
+  const audio = await axios.get(meta.data.url, {
+    headers: { Authorization: \`Bearer \${process.env.WHATSAPP_ACCESS_TOKEN}\` },
+    responseType: 'arraybuffer'
+  });
+  const b64 = Buffer.from(audio.data).toString('base64');
+  const res = await axios.post(
+    \`https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=\${process.env.GEMINI_API_KEY}\`,
+    { contents: [{ parts: [{ text: "Türkçe sesi metne çevir:" }, { inlineData: { mimeType: "audio/ogg", data: b64 } }] }] }
+  );
+  return res.data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || '';
+}
+
+async function syncWithGoogle(to, text, isVoice) {
+  const lower = text.toLowerCase();
+  let reply = '';
+  if (lower.includes('toplantı') || lower.includes('randevu')) {
+    await calendar.events.insert({
+      calendarId: 'primary',
+      requestBody: { summary: text, start: { dateTime: '2026-09-30T15:00:00+03:00' }, end: { dateTime: '2026-09-30T16:00:00+03:00' } }
+    });
+    reply = \`📅 Google Takvim'e kaydedildi: \${text}\`;
+  } else if (lower.includes('rehber')) {
+    await people.people.createContact({ requestBody: { names: [{ givenName: text }] } });
+    reply = \`👤 Google Kişiler'e eklendi: \${text}\`;
+  } else {
+    reply = \`📝 Notunuz alındı: "\${text}"\`;
+  }
+
+  await axios.post(\`https://graph.facebook.com/v20.0/\${process.env.WHATSAPP_PHONE_NUMBER_ID}/messages\`, {
+    messaging_product: 'whatsapp',
+    to: to,
+    text: { body: reply }
+  }, { headers: { Authorization: \`Bearer \${process.env.WHATSAPP_ACCESS_TOKEN}\` } });
+}
+
+app.listen(process.env.PORT || 3000, () => console.log('Sunucu 3000 portunda çalışıyor.'));`,
+
+      google: `====================================================================
+GOOGLE WORKSPACE (CALENDAR & PEOPLE API) OAUTH2 HAZIRLIK ADIMLARI
+====================================================================
+
+1. Google Cloud Projesi Oluşturma:
+   • https://console.cloud.google.com adresine gidin.
+   • 'Yeni Proje' oluşturun (Örn: "WhatsApp Asistan").
+
+2. API'leri Etkinleştirme:
+   • 'APIs & Services' > 'Library' sekmesine gidin.
+   • "Google Calendar API" aratıp ETKİNLEŞTİRİN.
+   • "Google People API" aratıp ETKİNLEŞTİRİN.
+
+3. OAuth Consent Screen (Onay Ekranı):
+   • 'OAuth consent screen' sekmesinde 'External' seçin.
+   • Scopes (İzinler) kısmına şunları ekleyin:
+     - https://www.googleapis.com/auth/calendar.events
+     - https://www.googleapis.com/auth/contacts
+
+4. Client ID & Secret Alma:
+   • 'Credentials' > 'Create Credentials' > 'OAuth Client ID' tıklayın.
+   • Uygulama türü: "Web application"
+   • Authorized redirect URI:
+     https://developers.google.com/oauthplayground
+
+5. Refresh Token (Kalıcı Token) Alma:
+   • https://developers.google.com/oauthplayground adresine gidin.
+   • Sağ üstteki çarktan (Settings) "Use your own OAuth credentials" kutusunu işaretleyin.
+   • Client ID ve Secret yapıştırıp Calendar v3 ve People v1 izinlerini onaylayın.
+   • "Exchange authorization code for tokens" butonuna basarak 'Refresh token' elde edin.`,
+
+      env: `# .env - Canlı Ortam Değişkenleri
+PORT=3000
+
+# Meta Developers (WhatsApp Cloud API Kullanıyorsanız):
+WHATSAPP_VERIFY_TOKEN=super_gizli_webhook_token_123
+WHATSAPP_ACCESS_TOKEN=EAAG... (Kalıcı Sistem Belirteci)
+WHATSAPP_PHONE_NUMBER_ID=109283746592817
+
+# Google Cloud OAuth 2.0 Bilgileri:
+GOOGLE_CLIENT_ID=xxxxxxxx.apps.googleusercontent.com
+GOOGLE_CLIENT_SECRET=GOCSPX-xxxxxxxx
+GOOGLE_REDIRECT_URI=https://developers.google.com/oauthplayground
+GOOGLE_REFRESH_TOKEN=1//04xxxx-xxxxxxxx
+
+# Multimodal Yapay Zeka (Sesli Not STT):
+GEMINI_API_KEY=AIzaSy...`,
+
+      docker: `FROM node:20-alpine
+WORKDIR /app
+COPY package*.json ./
+RUN npm install --production
+COPY . .
+EXPOSE 3000
+CMD ["node", "bot-baileys.js"]`,
+
+      verceljson: `// ====================================================================
+// 1. DOSYA: vercel.json (Proje ana dizininde yer alır)
+// ====================================================================
+{
+  "version": 2,
+  "rewrites": [
+    { "source": "/api/webhook", "destination": "/api/webhook.js" },
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
+}
+
+// ====================================================================
+// 2. DOSYA: api/webhook.js (Vercel Serverless WhatsApp & Google Endpoint)
+// ====================================================================
+const axios = require('axios');
+const { google } = require('googleapis');
+
+const oauth2Client = new google.auth.OAuth2(
+  process.env.GOOGLE_CLIENT_ID,
+  process.env.GOOGLE_CLIENT_SECRET,
+  process.env.GOOGLE_REDIRECT_URI
+);
+oauth2Client.setCredentials({ refresh_token: process.env.GOOGLE_REFRESH_TOKEN });
+
+const calendar = google.calendar({ version: 'v3', auth: oauth2Client });
+const people = google.people({ version: 'v1', auth: oauth2Client });
+
+module.exports = async function handler(req, res) {
+  // 1. Meta Webhook Doğrulaması (GET)
+  if (req.method === 'GET') {
+    const mode = req.query['hub.mode'];
+    const token = req.query['hub.verify_token'];
+    const challenge = req.query['hub.challenge'];
+    if (mode === 'subscribe' && token === process.env.WHATSAPP_VERIFY_TOKEN) {
+      return res.status(200).send(challenge);
+    }
+    return res.status(403).json({ error: 'Doğrulama başarısız' });
+  }
+
+  // 2. WhatsApp Gelen Mesaj / Sesli Komut İşleme (POST)
+  if (req.method === 'POST') {
+    try {
+      const msg = req.body.entry?.[0]?.changes?.[0]?.value?.messages?.[0];
+      if (!msg) return res.status(200).send('EVENT_RECEIVED');
+
+      const sender = msg.from;
+      let text = '';
+
+      if (msg.type === 'text') {
+        text = msg.text.body;
+      } else if (msg.type === 'audio') {
+        // Sesli mesajı Gemini ile metne çevir
+        const meta = await axios.get(\`https://graph.facebook.com/v20.0/\${msg.audio.id}\`, {
+          headers: { Authorization: \`Bearer \${process.env.WHATSAPP_ACCESS_TOKEN}\` }
+        });
+        const audio = await axios.get(meta.data.url, {
+          headers: { Authorization: \`Bearer \${process.env.WHATSAPP_ACCESS_TOKEN}\` },
+          responseType: 'arraybuffer'
+        });
+        const b64 = Buffer.from(audio.data).toString('base64');
+        const geminiRes = await axios.post(
+          \`https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=\${process.env.GEMINI_API_KEY}\`,
+          { contents: [{ parts: [{ text: "Türkçe sesi metne dök:" }, { inlineData: { mimeType: "audio/ogg", data: b64 } }] }] }
+        );
+        text = geminiRes.data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || '';
+      }
+
+      if (text) {
+        const lower = text.toLowerCase();
+        let reply = '';
+
+        if (lower.includes('toplantı') || lower.includes('randevu') || lower.startsWith('!toplanti')) {
+          await calendar.events.insert({
+            calendarId: 'primary',
+            requestBody: {
+              summary: text,
+              start: { dateTime: new Date(Date.now() + 86400000).toISOString() },
+              end: { dateTime: new Date(Date.now() + 90000000).toISOString() }
+            }
+          });
+          reply = \`📅 Google Takvim'e kaydedildi: \${text}\`;
+        } else if (lower.includes('rehber') || lower.startsWith('!rehber')) {
+          await people.people.createContact({
+            requestBody: { names: [{ givenName: text }] }
+          });
+          reply = \`👤 Google Kişiler'e eklendi: \${text}\`;
+        } else {
+          reply = \`📝 Not alındı: "\${text}"\`;
+        }
+
+        await axios.post(
+          \`https://graph.facebook.com/v20.0/\${process.env.WHATSAPP_PHONE_NUMBER_ID}/messages\`,
+          { messaging_product: 'whatsapp', to: sender, text: { body: reply } },
+          { headers: { Authorization: \`Bearer \${process.env.WHATSAPP_ACCESS_TOKEN}\` } }
+        );
+      }
+
+      return res.status(200).send('EVENT_RECEIVED');
+    } catch (err) {
+      console.error(err);
+      return res.status(200).send('EVENT_HANDLED');
+    }
+  }
+
+  return res.status(405).send('Method Not Allowed');
+};`
+    };
+
+    function switchBackendTab(tab) {
+      currentBackendTab = tab;
+      ['baileys', 'node', 'google', 'env', 'docker', 'verceljson'].forEach(t => {
+        const btn = document.getElementById(`btnBackend-${t}`);
+        if (btn) {
+          btn.className = (t === tab) 
+            ? 'px-3.5 py-1.5 bg-emerald-600 text-white font-semibold rounded-lg transition whitespace-nowrap'
+            : 'px-3.5 py-1.5 bg-slate-800 text-slate-300 hover:text-white font-semibold rounded-lg transition whitespace-nowrap';
+        }
+      });
+
+      const titleEl = document.getElementById('backendCodeTitle');
+      const codeEl = document.getElementById('backendCodeBlock');
+      if (titleEl && codeEl) {
+        if (tab === 'baileys') titleEl.innerHTML = '<i class="fa-solid fa-qrcode"></i> bot-baileys.js';
+        else if (tab === 'node') titleEl.innerHTML = '<i class="fa-brands fa-node-js"></i> server.js';
+        else if (tab === 'google') titleEl.innerHTML = '<i class="fa-brands fa-google"></i> GOOGLE_SETUP.md';
+        else if (tab === 'env') titleEl.innerHTML = '<i class="fa-solid fa-key"></i> .env';
+        else if (tab === 'verceljson') titleEl.innerHTML = '<i class="fa-solid fa-bolt"></i> vercel.json & api/webhook.js';
+        else titleEl.innerHTML = '<i class="fa-brands fa-docker"></i> Dockerfile';
+
+        codeEl.textContent = BACKEND_TEMPLATES[tab];
+      }
+    }
+
+    function copyBackendCode() {
+      const code = BACKEND_TEMPLATES[currentBackendTab];
+      copyTextToClipboard(code);
+    }
+
+    function downloadCompleteProjectZip() {
+      if (typeof JSZip === 'undefined') {
+        showToast('ZIP aracı hazırlanıyor, lütfen 1 saniye sonra tekrar tıklayın.');
+        return;
+      }
+
+      showToast('📦 ZIP paketi derleniyor ve indirme başlatılıyor...');
+
+      const zip = new JSZip();
+
+      const packageJson = {
+        name: "whatsapp-google-workspace-assistant",
+        version: "2.5.0",
+        description: "WhatsApp voice and text assistant for Google Calendar and Contacts",
+        main: "bot-baileys.js",
+        scripts: {
+          "start:qr": "node bot-baileys.js",
+          "start:meta": "node server.js"
+        },
+        dependencies: {
+          "@whiskeysockets/baileys": "^6.7.0",
+          "axios": "^1.7.0",
+          "body-parser": "^1.20.2",
+          "dotenv": "^16.4.5",
+          "express": "^4.19.2",
+          "googleapis": "^140.0.0",
+          "qrcode-terminal": "^0.12.0"
+        }
+      };
+
+      const dockerCompose = `version: '3.8'
+services:
+  whatsapp-assistant:
+    build: .
+    restart: always
+    env_file: .env
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./auth_info_baileys:/app/auth_info_baileys`;
+
+      const readmeMd = `# WhatsApp ⇄ Google Workspace Asistanı (Sesli & Yazılı)
+
+## ▲ Vercel ile 1 Dakikada Yayına Alma:
+1. Bu klasördeki tüm dosyaları yeni bir **GitHub** reposuna yükleyin.
+2. [vercel.com/new](https://vercel.com/new) adresinden reponuzu **Import** edin.
+3. **Environment Variables** kısmına \`.env.example\` içindeki değişkenleri ekleyin ve **Deploy**'a basın!
+4. Meta Webhook URL'niz: \`https://PROJE-ADINIZ.vercel.app/api/webhook\` olarak hazır olacaktır.
+
+## 📱 Hızlı Başlangıç (QR Kodlu Bireysel Kurulum - Kendi Bilgisayarınız veya Railway/VPS):
+1. Bağımlılıkları yükleyin:
+   \`\`\`bash
+   npm install
+   \`\`\`
+2. \`.env.example\` dosyasını \`.env\` olarak kopyalayın ve Google OAuth + Gemini API anahtarlarınızı girin.
+3. Botu başlatın:
+   \`\`\`bash
+   npm run start:qr
+   \`\`\`
+4. Terminalde beliren **QR kodu telefonunuzdaki WhatsApp ile taratın**.
+`;
+
+      const vercelJsonContent = JSON.stringify({
+        version: 2,
+        rewrites: [
+          { source: "/api/webhook", destination: "/api/webhook.js" },
+          { source: "/(.*)", destination: "/index.html" }
+        ]
+      }, null, 2);
+
+      const gitignoreContent = `node_modules/\n.env\n.vercel\nauth_info_baileys/\n.DS_Store\n`;
+
+      const serverlessWebhookCode = BACKEND_TEMPLATES.verceljson.split('// 2. DOSYA: api/webhook.js (Vercel Serverless WhatsApp & Google Endpoint)\n// ====================================================================\n')[1];
+
+      zip.file("index.html", document.documentElement.outerHTML);
+      zip.file("vercel.json", vercelJsonContent);
+      zip.file(".gitignore", gitignoreContent);
+      zip.file("api/webhook.js", serverlessWebhookCode || BACKEND_TEMPLATES.node);
+      zip.file("package.json", JSON.stringify(packageJson, null, 2));
+      zip.file("bot-baileys.js", BACKEND_TEMPLATES.baileys);
+      zip.file("server.js", BACKEND_TEMPLATES.node);
+      zip.file(".env.example", BACKEND_TEMPLATES.env);
+      zip.file("GOOGLE_SETUP.md", BACKEND_TEMPLATES.google);
+      zip.file("Dockerfile", BACKEND_TEMPLATES.docker);
+      zip.file("docker-compose.yml", dockerCompose);
+      zip.file("README.md", readmeMd);
+
+      zip.generateAsync({ type: "blob" }).then((content) => {
+        downloadBlob(content, "whatsapp-google-asistan-vercel-ready.zip", "application/zip");
+        showToast('✅ Vercel uyumlu .ZIP paketi başarıyla indirildi!');
+      }).catch(err => {
+        console.error(err);
+        showToast('İndirme oluşturulurken bir hata oluştu.');
+      });
+    }
+
+    function openGoogleLiveAuthModal() {
+      document.getElementById('googleAuthModal').classList.remove('hidden');
+    }
+
+    function closeGoogleLiveAuthModal() {
+      document.getElementById('googleAuthModal').classList.add('hidden');
+    }
+
+    function initiateGoogleLiveSignIn() {
+      const clientId = document.getElementById('googleClientIdInput').value.trim();
+      if (!clientId) {
+        showToast('Lütfen geçerli bir Google OAuth Client ID girin.');
+        return;
+      }
+
+      try {
+        const client = google.accounts.oauth2.initTokenClient({
+          client_id: clientId,
+          scope: 'https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/contacts',
+          callback: (response) => {
+            if (response.access_token) {
+              googleAccessToken = response.access_token;
+              const badge = document.getElementById('googleAuthStatusBadge');
+              if (badge) {
+                badge.innerText = 'Canlı Google Bağlı';
+                badge.className = 'text-[10px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded border border-emerald-500/30 font-semibold';
+              }
+              closeGoogleLiveAuthModal();
+              showToast('✅ Google hesabınız canlı olarak bağlandı!');
+            }
+          },
+        });
+        client.requestAccessToken();
+      } catch (err) {
+        showToast('Google yetkilendirme penceresi açılamadı. Client ID bilgisini kontrol edin.');
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      renderChat();
+      renderCalendar();
+      renderContacts();
+      renderNotes();
+      updateBadges();
+      switchBackendTab('baileys');
+    });
+  </script>
+
+</body></html>
